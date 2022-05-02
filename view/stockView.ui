@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Inventaire</class>
+ <widget class="QMainWindow" name="Inventaire">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>827</width>
+    <height>550</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Inventaire</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTableWidget" name="tableStock">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>811</width>
+      <height>530</height>
+     </rect>
+    </property>
+    <property name="locale">
+     <locale language="French" country="Switzerland"/>
+    </property>
+    <column>
+     <property name="text">
+      <string>Code article</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Marque</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Modèle</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>N/S</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Taille</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Type</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Stock</string>
+     </property>
+    </column>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

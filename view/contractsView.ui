@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Contracts</class>
+ <widget class="QMainWindow" name="Contracts">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>727</width>
+    <height>550</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Contrats</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTableWidget" name="tableContracts">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>711</width>
+      <height>530</height>
+     </rect>
+    </property>
+    <property name="locale">
+     <locale language="French" country="Switzerland"/>
+    </property>
+    <column>
+     <property name="text">
+      <string>Contract conclu le </string>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>7</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Avec</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string/>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Tél</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Prévu</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Effectif</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Aller Chercher</string>
+     </property>
+    </column>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
