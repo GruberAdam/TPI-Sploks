@@ -1,8 +1,10 @@
 from model.database import *
 
 
+# Function designed to get all the items from the database
+# :return: A list of tuples.
 def getStock(self):
-    query ="SELECT * FROM sploks.items;"
+    query ="SELECT sploks.items.*, sploks.gearstates.code, sploks.geartypes.name FROM sploks.items LEFT JOIN sploks.gearstates ON sploks.items.gearstate_id = sploks.gearstates.id LEFT JOIN sploks.geartypes ON sploks.items.geartype_id = sploks.geartypes.id"
     connection = connectToDatabase(self) # Opens a connection with the database
     stock = executeQuery(self, connection, query)
 
