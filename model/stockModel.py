@@ -20,3 +20,13 @@ def getFilteredStock(self, filter):
     filteredStock = executeQuery(self, connection, query)
 
     return filteredStock
+    
+#It gets an item from the database by its id    
+#:param id: The id of the item you want to get
+#:return: A list of tuples.
+def getItemById(self, id):
+    query = f"SELECT sploks.items.*, sploks.geartypes.name, sploks.renteditems.price FROM sploks.items LEFT JOIN sploks.geartypes ON sploks.items.geartype_id = sploks.geartypes.id LEFT JOIN sploks.renteditems ON sploks.items.id = sploks.renteditems.item_id WHERE sploks.items.id = {id}"
+    connection = connectToDatabase(self) # Opens a connection with the database
+    item = executeQuery(self, connection, query)
+
+    return item
