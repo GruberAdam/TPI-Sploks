@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, QtGui, uic
+from PyQt5 import QtWidgets, QtGui, uic, QtCore
 from model.stockModel import * 
 
 class StockUi(QtWidgets.QMainWindow):
@@ -31,6 +31,8 @@ class StockUi(QtWidgets.QMainWindow):
             self.stockWindow.tableStock.setItem(index, 7, QtWidgets.QTableWidgetItem(str(item[7])))  # Retour
             self.stockWindow.tableStock.setItem(index, 8, QtWidgets.QTableWidgetItem(str(item[12]))) # Type
             self.stockWindow.tableStock.setItem(index, 9, QtWidgets.QTableWidgetItem(str(item[8])))  # Stock
+        
+        self.stockWindow.tableStock.viewport().installEventFilter(self) # Event listener
     
     # Sets the headers of the table
     def setTableHeader(self):
@@ -40,7 +42,6 @@ class StockUi(QtWidgets.QMainWindow):
     
     # It filters the stock table based on the user input.
     def filterButton(self):
-        
         filteredQuery = "WHERE"
         filters = [self.stockWindow.textState.toPlainText().strip(), self.stockWindow.textBrand.toPlainText().strip(), self.stockWindow.textModel.toPlainText().strip(),self.stockWindow.textSerialNumber.toPlainText().strip()]
         filterText = ["code", "brand", "model", "articlenumber"]
@@ -56,3 +57,12 @@ class StockUi(QtWidgets.QMainWindow):
         filteredQuery = filteredQuery[:-3]
         self.filteredStock = getFilteredStock(self, filteredQuery)
         self.loadItems(self.filteredStock)
+
+
+    def eventFilter(self, source, event):
+        if self.stockWindow.tableStock.selectedIndexes() != []: # Checks that the user clicked on a cell
+            if event.type() == QtCore.QEvent.MouseButtonDblClick: # If user double clicked
+                row = self.stockWindow.tableStock.currentRow() # gets row clicked
+                code = self.stockWindow.tableStock.item(row, 0).text() # gets code based on click
+        
+        return False
