@@ -12,7 +12,6 @@ class ContractsUi(QtWidgets.QMainWindow):
 
         # Iterates over the list of contracts and inserts them into the table.
         for index, contract in enumerate(contracts):
-            print(contract[0][14])
             self.contractsWindow.tableContracts.insertRow(index) # Inserts the row
 
 
