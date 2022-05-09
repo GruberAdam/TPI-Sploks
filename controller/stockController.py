@@ -92,10 +92,10 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
     # Setting up the UI of the second window.
     #:param id: the id of the customer
     def setupUi(self, id):
-
         self.id = id
-        
         self.item = getItemById(self,self.id)
+
+        self.itemDetailWindow.setWindowTitle(f"Article {self.item[0][1]}") # Article Code is set as the title
         numberOfContracts = getNumberOfContractsById(self, self.id)
 
         if not numberOfContracts:
@@ -128,4 +128,4 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
     # When contracts button clicked, open contracts UI
     def contractsButton(self):
         contracts = contractsController.ContractsUi()
-        contracts.setupUi(self.id)
+        contracts.setupUi(self.id, self.item[0][1])

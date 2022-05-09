@@ -7,7 +7,9 @@ class ContractsUi(QtWidgets.QMainWindow):
         self.contractsWindow = uic.loadUi("view/contractsView.ui", self)
         
     # Sets up the UI
-    def setupUi(self, id):
+    def setupUi(self, id, code):
+
+        self.contractsWindow.setWindowTitle(f"Location de l'article {code}") # Article Code is set as the title
         contracts = getContractByItemId(self, id)  # Gets all the contracts from the item ID
 
         # Iterates over the list of contracts and inserts them into the table.
