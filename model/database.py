@@ -1,6 +1,10 @@
 from multiprocessing import connection
 import mysql.connector
 from mysql.connector import errorcode
+import os
+from dotenv import load_dotenv
+
+load_dotenv() # Loads the .env file
 
 # Function designed to create a connection to the database
 # The connection is then returned
@@ -8,9 +12,9 @@ def connectToDatabase(self):
     try:
         connection = mysql.connector.connect(
         host="localhost",
-        user="root",
-        password="root.1234",
-        database="sploks",
+        user= os.getenv('DB_USER'),
+        password=os.getenv('DB_PASSWORD'),
+        database=os.getenv('DB_NAME'),
         )
     except mysql.connector.Error as err:
         if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
