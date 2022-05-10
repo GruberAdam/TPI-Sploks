@@ -160,6 +160,10 @@
  </widget>
  <tabstops>
   <tabstop>tableStock</tabstop>
+  <tabstop>textBrand</tabstop>
+  <tabstop>textModel</tabstop>
+  <tabstop>textSerialNumber</tabstop>
+  <tabstop>textState</tabstop>
   <tabstop>btnFiltrer</tabstop>
  </tabstops>
  <resources/>
