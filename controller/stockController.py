@@ -7,6 +7,12 @@ class StockUi(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         self.stockWindow = uic.loadUi("view/stockView.ui", self)
+        
+        self.stockWindow.textBrand.installEventFilter(self)
+        self.stockWindow.textModel.installEventFilter(self)
+        self.stockWindow.textSerialNumber.installEventFilter(self)
+        self.stockWindow.textState.installEventFilter(self)
+
         self.stockWindow.btnFiltrer.clicked.connect(self.filterButton)
         self.stock = getStock(self)
         self.loadItems(self.stock)
@@ -43,10 +49,19 @@ class StockUi(QtWidgets.QMainWindow):
         for index, header in enumerate(headerNames):
             self.stockWindow.tableStock.setHorizontalHeaderItem(index, QtWidgets.QTableWidgetItem(str(header)))
     
+    
+    #Resets the text in the filters in the stock window.    
+    def resetTextEdits(self):
+        self.stockWindow.textBrand.setText("")
+        self.stockWindow.textModel.setText("")
+        self.stockWindow.textSerialNumber.setText("")
+        self.stockWindow.textState.setText("")
+
+
     # It filters the stock table based on the user input.
     def filterButton(self):
         filteredQuery = "WHERE"
-        filters = [self.stockWindow.textState.toPlainText().strip(), self.stockWindow.textBrand.toPlainText().strip(), self.stockWindow.textModel.toPlainText().strip(),self.stockWindow.textSerialNumber.toPlainText().strip()]
+        filters = [self.stockWindow.textState.text().strip(), self.stockWindow.textBrand.text().strip(), self.stockWindow.textModel.text().strip(),self.stockWindow.textSerialNumber.text().strip()]
         filterText = ["code", "brand", "model", "articlenumber"]
         checkFilter = False
 
@@ -58,9 +73,14 @@ class StockUi(QtWidgets.QMainWindow):
         if checkFilter == False:
              filteredQuery = ""
         filteredQuery = filteredQuery[:-3]
+
         self.filteredStock = getFilteredStock(self, filteredQuery)
-        self.loadItems(self.filteredStock)
+
+        self.loadItems(self.filteredStock) # Loads table with filter
+
         self.stockWindow.tableStock.verticalScrollBar().setValue(0) # Goes back to the top of the filter
+
+        self.resetTextEdits()
 
 
 
@@ -72,7 +92,7 @@ class StockUi(QtWidgets.QMainWindow):
     #:return: The return value is a boolean value. If the event is handled, the function should return
     #True. If the event should be propagated further, the function should return False.
 
-    def eventFilter(self, source, event):
+    def eventFilter(self, object, event):
         if self.stockWindow.tableStock.selectedIndexes() != []: # Checks that the user clicked on a cell
             if event.type() == QtCore.QEvent.MouseButtonDblClick: # If user double clicked
                 row = self.stockWindow.tableStock.currentRow() # gets row clicked
@@ -80,7 +100,9 @@ class StockUi(QtWidgets.QMainWindow):
 
                 self.detailledUi = ItemDetailsUi() # Prepare the second window
                 self.detailledUi.setupUi(id)         
-        
+        if event.type() == QtCore.QEvent.KeyPress and object.hasSelectedText() == QtWidgets.QLineEdit(self).hasSelectedText(): # Checks that it's a keypress and from a QTextEdit event
+            if event.key() == QtCore.Qt.Key_Return:
+                self.filterButton()
         return False
 
 # Loads the ui file and creates a window.
