@@ -30,3 +30,35 @@ def getItemById(self, id):
     item = executeQuery(self, connection, query)
 
     return item
+
+#Gets all the gear types
+#:return: A list of tuples.
+    
+def getAllGearTypes(self):
+
+    query = "SELECT sploks.geartypes.name FROM sploks.geartypes"
+    connection = connectToDatabase(self)
+    gearTypes = executeQuery(self,connection, query)
+
+    return gearTypes
+    
+#Insert the values of the dictionary into the database
+
+#:param item: a dictionary containing the following keys:
+#:return: The result of the query 
+def addItem(self, item):
+
+    query = f"INSERT INTO sploks.items (itemnb, brand, model, size, gearstate_id, cost, returned, stock, articlenumber, geartype_id) VALUES ('{item['itemNumber']}', '{item['brand']}', '{item['model']}', '{item['size']}','{item['state']}', '{item['price']}', '{0}', '{item['stock']}', '{item['serialNumber']}', '{item['type']}')"
+    
+    if item['size'].isnumeric() == False:
+        return {"error" : True, "errorMessage" :"La taille doit être un nombre"}
+
+    if item['price'].isnumeric() == False:
+        return {"error" : True, "errorMessage" :"Le prix doit être un nombre"}
+
+    if item['stock'].isnumeric() == False:
+        return {"error" : True, "errorMessage" :"Le stock doit être un nombre"}
+    
+    connection = connectToDatabase(self)
+    res = executeQuery(self,connection, query)
+    return {"error" : False, "res" : res}

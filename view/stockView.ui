@@ -90,7 +90,7 @@
      <rect>
       <x>780</x>
       <y>10</y>
-      <width>141</width>
+      <width>101</width>
       <height>31</height>
      </rect>
     </property>
@@ -175,6 +175,19 @@
      <string>Filtrer par :</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="btnAdd">
+    <property name="geometry">
+     <rect>
+      <x>890</x>
+      <y>10</y>
+      <width>121</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Ajouter des articles</string>
+    </property>
+   </widget>
    <zorder>btnFiltrer</zorder>
    <zorder>tableStock</zorder>
    <zorder>textBrand</zorder>
@@ -182,6 +195,7 @@
    <zorder>textSerialNumber</zorder>
    <zorder>textState</zorder>
    <zorder>label</zorder>
+   <zorder>btnAdd</zorder>
   </widget>
  </widget>
  <tabstops>

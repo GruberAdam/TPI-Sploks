@@ -1,7 +1,11 @@
 from PyQt5 import QtWidgets, QtGui, uic, QtCore
+from PyQt5.QtWidgets import QCheckBox 
+from packages.PyQt5.ExtendedCombo import ExtendedComboBox
 from controller import contractsController
 from model.contractsModel import getNumberOfContractsById 
-from model.stockModel import * 
+from model.stockModel import *
+
+windowNeedsUpdate = False
 
 class StockUi(QtWidgets.QMainWindow):
     def __init__(self):
@@ -14,6 +18,7 @@ class StockUi(QtWidgets.QMainWindow):
         self.stockWindow.textState.installEventFilter(self)
 
         self.stockWindow.btnFiltrer.clicked.connect(self.filterButton)
+        self.stockWindow.btnAdd.clicked.connect(self.addButton)
         self.stock = getStock(self)
         self.loadItems(self.stock)
         self.stockWindow.show()
@@ -21,7 +26,7 @@ class StockUi(QtWidgets.QMainWindow):
     # Writes all the data in the table
     def loadItems(self, stock):
 
-        self.stockWindow.tableStock.clear()
+        self.stockWindow.tableStock.setRowCount(0)
         self.setTableHeader()
         
         self.stockWindow.tableStock.verticalHeader().setVisible(False) # Hides the row number
@@ -81,7 +86,9 @@ class StockUi(QtWidgets.QMainWindow):
         self.stockWindow.tableStock.verticalScrollBar().setValue(0) # Goes back to the top of the filter
 
         self.resetTextEdits()
-
+    
+    def addButton(self):
+        self.addItemsUi = AddItemsUI()
 
 
     #If the user double clicks on a cell in the table, get the row and the id of the item, then open the
@@ -93,6 +100,7 @@ class StockUi(QtWidgets.QMainWindow):
     #True. If the event should be propagated further, the function should return False.
 
     def eventFilter(self, object, event):
+        global windowNeedsUpdate
         if self.stockWindow.tableStock.selectedIndexes() != []: # Checks that the user clicked on a cell
             if event.type() == QtCore.QEvent.MouseButtonDblClick: # If user double clicked
                 row = self.stockWindow.tableStock.currentRow() # gets row clicked
@@ -103,6 +111,11 @@ class StockUi(QtWidgets.QMainWindow):
         if event.type() == QtCore.QEvent.KeyPress and object.hasSelectedText() == QtWidgets.QLineEdit(self).hasSelectedText(): # Checks that it's a keypress and from a QTextEdit event
             if event.key() == QtCore.Qt.Key_Return:
                 self.filterButton()
+
+        if windowNeedsUpdate == True:
+            self.stock = getStock(self)
+            self.loadItems(self.stock)
+            windowNeedsUpdate = False
         return False
 
 # Loads the ui file and creates a window.
@@ -110,8 +123,8 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         self.itemDetailWindow = uic.loadUi("view/itemDetailsView.ui", self)
-        
-    # Setting up the UI of the second window.
+
+    # Setting up the UI of the inspector window.
     #:param id: the id of the customer
     def setupUi(self, id):
         self.id = id
@@ -122,7 +135,7 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
 
         if not numberOfContracts:
             numberOfContracts = 0
-        else : 
+        else :
             numberOfContracts = numberOfContracts[0][1]
 
         incomeGenerated = 0
@@ -132,7 +145,8 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
         for index, instance in enumerate(self.item):
             if instance[12] != None:
                 incomeGenerated += instance[12]
-        
+
+
         # Setting the text of the labels 
         self.itemDetailWindow.lblCodeArticle.setText(str(self.item[0][1]))
         self.itemDetailWindow.lblNumeroSerie.setText(str(self.item[0][9]))
@@ -151,3 +165,55 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
     def contractsButton(self):
         contracts = contractsController.ContractsUi()
         contracts.setupUi(self.id, self.item[0][1])
+
+
+class AddItemsUI(QtWidgets.QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.addItemWindow = uic.loadUi("view/addItemsView.ui", self)
+        self.setupUi()
+        self.addItemWindow.show()
+
+    #Sets up the UI
+    def setupUi(self):
+        self.setupComboBox()
+        self.addItemWindow.btnValider.clicked.connect(self.buttonValidate)
+
+    # Sets up the comboBox
+    def setupComboBox(self):
+        self.comboBoxType = ExtendedComboBox(self)
+        
+        self.gearTypes = getAllGearTypes(self)
+        stringArray = []
+
+        for gearType in self.gearTypes:
+            stringArray.append(gearType[0])
+
+        self.comboBoxType.addItems(stringArray)
+
+        self.comboBoxType.setGeometry(530, 80, 113, 20)
+        
+        self.comboBoxType.show()
+
+    def buttonValidate(self):
+        global windowNeedsUpdate
+        self.itemToAdd = {
+            "itemNumber" : self.addItemWindow.textCodeArticle.text(),
+            "serialNumber" : self.addItemWindow.textNumeroSerie.text(),
+            "state" : self.addItemWindow.comboBoxEtat.currentIndex() + 1,
+            "price" : self.addItemWindow.textPrix.text(),
+            "brand" : self.addItemWindow.textMarque.text(),
+            "model" : self.addItemWindow.textModel.text(),
+            "type" : self.comboBoxType.currentIndex() + 1,
+            "stock" : self.addItemWindow.textStock.text(),
+            "size" : self.addItemWindow.textTaille.text()
+        }
+
+        result = addItem(self, self.itemToAdd)
+
+        if result['error'] == True:
+            self.addItemWindow.textErrorMessage.setText(result['errorMessage'])
+        else:
+            self.addItemWindow.textErrorMessage.setText("")
+            self.addItemWindow.close()
+            windowNeedsUpdate = True
