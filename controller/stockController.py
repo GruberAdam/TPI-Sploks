@@ -178,42 +178,75 @@ class AddItemsUI(QtWidgets.QMainWindow):
     def setupUi(self):
         self.setupComboBox()
         self.addItemWindow.btnValider.clicked.connect(self.buttonValidate)
+        self.addItemWindow.btnEncore.clicked.connect(self.buttonAdd)
+        self.addItemWindow.radioUnique.clicked.connect(self.radioButtonChecked)
+        self.addItemWindow.radioMultiple.clicked.connect(self.radioButtonChecked)
+        self.addItemWindow.textNumeroSerie.hide()
+        self.addItemWindow.textStock.hide()
 
     # Sets up the comboBox
     def setupComboBox(self):
         self.comboBoxType = ExtendedComboBox(self)
         
         self.gearTypes = getAllGearTypes(self)
-        stringArray = []
+        stringArray = ["Choix"]
 
         for gearType in self.gearTypes:
             stringArray.append(gearType[0])
 
         self.comboBoxType.addItems(stringArray)
 
-        self.comboBoxType.setGeometry(530, 80, 113, 20)
-        
+        self.comboBoxType.setGeometry(530, 100, 113, 20)
+
         self.comboBoxType.show()
 
-    def buttonValidate(self):
-        global windowNeedsUpdate
-        self.itemToAdd = {
+    #It returns a dictionary with the values of the fields of the add form.
+    #:return: A dictionary with the values of the fields in the addItemWindow.
+    def getCreatedItem(self):
+
+        if not self.addItemWindow.textPrix.text():
+            self.addItemWindow.textPrix.setText("0")
+
+        if not self.addItemWindow.textStock.text():
+            self.addItemWindow.textStock.setText("1")
+
+        return {
             "itemNumber" : self.addItemWindow.textCodeArticle.text(),
             "serialNumber" : self.addItemWindow.textNumeroSerie.text(),
             "state" : self.addItemWindow.comboBoxEtat.currentIndex() + 1,
             "price" : self.addItemWindow.textPrix.text(),
             "brand" : self.addItemWindow.textMarque.text(),
             "model" : self.addItemWindow.textModel.text(),
-            "type" : self.comboBoxType.currentIndex() + 1,
+            "type" : self.comboBoxType.currentIndex(),
             "stock" : self.addItemWindow.textStock.text(),
-            "size" : self.addItemWindow.textTaille.text()
+            "size" : self.addItemWindow.textTaille.text(),
+            "unique" : self.addItemWindow.radioUnique.isChecked(),
+            "multiple" : self.addItemWindow.radioMultiple.isChecked()
         }
+
+    def buttonValidate(self):
+        global windowNeedsUpdate
+        self.addItemWindow.textErrorMessage.setText("")
+        self.addItemWindow.close()
+        windowNeedsUpdate = True
+
+    
+    def buttonAdd(self):
+        self.itemToAdd = self.getCreatedItem()
 
         result = addItem(self, self.itemToAdd)
 
         if result['error'] == True:
+            self.addItemWindow.textErrorMessage.setStyleSheet("color: red; border:none;")
             self.addItemWindow.textErrorMessage.setText(result['errorMessage'])
         else:
-            self.addItemWindow.textErrorMessage.setText("")
-            self.addItemWindow.close()
-            windowNeedsUpdate = True
+            self.addItemWindow.textErrorMessage.setStyleSheet("color: green; border:none;")
+            self.addItemWindow.textErrorMessage.setText("Contrat ajouté")
+
+    def radioButtonChecked(self):
+        if self.addItemWindow.radioUnique.isChecked():
+            self.addItemWindow.textNumeroSerie.setVisible(True)
+            self.addItemWindow.textStock.hide()
+        if self.addItemWindow.radioMultiple.isChecked():
+            self.addItemWindow.textStock.setVisible(True)
+            self.addItemWindow.textNumeroSerie.hide()
