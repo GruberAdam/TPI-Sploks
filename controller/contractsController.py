@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets, QtGui, uic
-from model.contractsModel import *
+from model.Contracts import *
 
 class ContractsUi(QtWidgets.QMainWindow):
     def __init__(self):
@@ -8,9 +8,11 @@ class ContractsUi(QtWidgets.QMainWindow):
         
     # Sets up the UI
     def setupUi(self, id, code):
-
         self.contractsWindow.setWindowTitle(f"Location de l'article {code}") # Article Code is set as the title
-        contracts = getContractByItemId(self, id)  # Gets all the contracts from the item ID
+
+        self.contracts = Contracts() 
+        #contracts = self.contracts.getContractByItemId(self, id)  # Gets all the contracts from the item ID
+        contracts = self.contracts.getContractsByItemId(id)
 
         # Iterates over the list of contracts and inserts them into the table.
         for index, contract in enumerate(contracts):
