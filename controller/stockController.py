@@ -1,5 +1,6 @@
 from PyQt5 import QtWidgets, QtGui, uic, QtCore
 from PyQt5.QtWidgets import QCheckBox
+from PyQt5.QtCore import Qt
 from packages.PyQt5.ExtendedCombo import ExtendedComboBox
 from controller import contractsController
 from model.Stock import *
@@ -178,13 +179,36 @@ class AddItemsUI(QtWidgets.QMainWindow):
         self.item = Item()
 
         self.setupComboBox()
+        
+        #Event listener to all buttons
         self.addItemWindow.btnValider.clicked.connect(self.buttonValidate)
         self.addItemWindow.btnEncore.clicked.connect(self.buttonAdd)
         self.addItemWindow.radioUnique.clicked.connect(self.radioButtonChecked)
         self.addItemWindow.radioMultiple.clicked.connect(
             self.radioButtonChecked)
+        
+        # Hides text behind both radioBoxes
         self.addItemWindow.textNumeroSerie.hide()
         self.addItemWindow.textStock.hide()
+
+        # Setting the tab order
+        tabOrder = [self.addItemWindow.textCodeArticle, self.addItemWindow.textMarque, self.addItemWindow.textModel, 
+        self.comboBoxType, self.addItemWindow.textTaille, self.addItemWindow.comboBoxEtat, self.addItemWindow.textPrix,
+        self.addItemWindow.radioUnique, self.addItemWindow.textNumeroSerie,self.addItemWindow.radioMultiple, self.addItemWindow.textStock,
+        self.addItemWindow.btnEncore, self.addItemWindow.btnValider]
+
+        self.setTabOrder(tabOrder[0], tabOrder[1])
+        self.setTabOrder(tabOrder[1], tabOrder[2])
+        self.setTabOrder(tabOrder[2], tabOrder[3])
+        self.setTabOrder(tabOrder[3], tabOrder[4])
+        self.setTabOrder(tabOrder[4], tabOrder[5])
+        self.setTabOrder(tabOrder[5], tabOrder[6])
+        self.setTabOrder(tabOrder[6], tabOrder[7])
+        self.setTabOrder(tabOrder[7], tabOrder[8])
+        self.setTabOrder(tabOrder[8], tabOrder[9])
+        self.setTabOrder(tabOrder[9], tabOrder[10])
+        self.setTabOrder(tabOrder[10], tabOrder[11])
+        self.setTabOrder(tabOrder[11], tabOrder[12])
 
     # Sets up the comboBox
     def setupComboBox(self):
@@ -211,7 +235,7 @@ class AddItemsUI(QtWidgets.QMainWindow):
             return res
 
         if self.addItemWindow.radioMultiple.isChecked():  # If mlultiple articles are added
-            return {
+            itemToAdd = {
                 "error": False,
                 "itemNumber": self.addItemWindow.textCodeArticle.text(),
                 "serialNumber": "-",
@@ -224,8 +248,18 @@ class AddItemsUI(QtWidgets.QMainWindow):
                 "size": self.addItemWindow.textTaille.text(),
             }
 
+            try:
+                if itemToAdd['type']['error']:
+                    return {"error" : True, "errorMessage" : itemToAdd['type']['errorMessage']}
+
+                if itemToAdd['state']['error']:
+                    return {"error" : True, "errorMessage" : itemToAdd['state']['errorMessage']}
+            except:
+                return itemToAdd
+            
+
         if self.addItemWindow.radioUnique.isChecked():  # If a unique article is added
-            return {
+            itemToAdd = {
                 "error": False,
                 "itemNumber": self.addItemWindow.textCodeArticle.text(),
                 "serialNumber": self.addItemWindow.textNumeroSerie.text(),
@@ -237,6 +271,18 @@ class AddItemsUI(QtWidgets.QMainWindow):
                 "stock": "1",
                 "size": self.addItemWindow.textTaille.text(),
             }
+
+            try:
+                if itemToAdd['type']['error']:
+                    return {"error" : True, "errorMessage" : itemToAdd['type']['errorMessage']}
+
+                if itemToAdd['state']['error']:
+                    return {"error" : True, "errorMessage" : itemToAdd['state']['errorMessage']}
+            except:
+                return itemToAdd
+            
+
+            
 
     # Leaves the window and updates it in the list of the items
     def buttonValidate(self):
@@ -250,7 +296,6 @@ class AddItemsUI(QtWidgets.QMainWindow):
 
     def buttonAdd(self):
         itemToAdd = self.getCreatedItem()
-
         if itemToAdd['error'] == True:
             self.displayErrorMessage(itemToAdd['errorMessage'])
             return
@@ -265,6 +310,7 @@ class AddItemsUI(QtWidgets.QMainWindow):
             self.addItemWindow.textErrorMessage.setStyleSheet(
                 "color: green; border:none;")
             self.addItemWindow.textErrorMessage.setText("Contrat ajouté")
+            self.addItemWindow.textCodeArticle.setText("")
 
     # Displays the right widget according to the radioBox clicked
     def radioButtonChecked(self):
@@ -317,3 +363,34 @@ class AddItemsUI(QtWidgets.QMainWindow):
             self.addItemWindow.textPrix.setText("0")
 
         return {"error": False}
+
+
+    # Every kind of events come in this function
+
+    #:param event: The event that occurred
+    #:return: The event is being returned.
+    def event(self, event):
+        if event.type() == QtCore.QEvent.KeyPress:
+            if event.key() in (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter):
+
+                # Checks radioBox "Unique" if it hasFocus and enter key is pressed
+                if self.addItemWindow.radioUnique.hasFocus(): 
+                    self.addItemWindow.radioUnique.setChecked(True)
+                    self.radioButtonChecked()
+
+                # Checks radioBox "Multiple" if it hasFocus and enter key is pressed
+                if self.addItemWindow.radioMultiple.hasFocus():
+                    self.addItemWindow.radioMultiple.setChecked(True)
+                    self.radioButtonChecked()
+
+                # Clicks on the "Encore" Button if it has focus and enter key is pressed
+                if self.addItemWindow.btnEncore.hasFocus():
+                    self.buttonAdd()
+
+                # Clicks on the "Valider" Button if it has focus and enter key is pressed
+                if self.addItemWindow.btnValider.hasFocus():
+                    self.buttonValidate()
+
+                self.focusNextPrevChild(True) # Goes to next widget
+                self.window().setAttribute(Qt.WA_KeyboardFocusChange) # Styles the border painting
+        return super().event(event)

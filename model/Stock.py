@@ -100,8 +100,6 @@ class Item(Stock):
     # Sets all the properties of the item thanks to the properties param
     #:param properties: a list of tuples, each tuple containing a key and a value
     def setItem(self, properties):
-
-        print(properties)
         for key, property in properties.items():
             if key == "itemNumber":
                 self.itemNb = property
@@ -137,6 +135,8 @@ class Item(Stock):
         connection = connectToDatabase(self)
         res = executeQuery(self, connection, query)
 
+        if not res:
+            return {"error": True, "errorMessage" : "L'état séléctionné est inconnu"}
         return res[0][0]
 
     # From the name of the type, it gets the matching ID
@@ -144,5 +144,7 @@ class Item(Stock):
         query = f"SELECT sploks.geartypes.id FROM sploks.geartypes WHERE sploks.geartypes.name = '{name}'"
         connection = connectToDatabase(self)
         res = executeQuery(self, connection, query)
+        if not res:
+            return {"error": True, "errorMessage" : "Le type séléctionné est inconnu"}
 
         return res[0][0]
