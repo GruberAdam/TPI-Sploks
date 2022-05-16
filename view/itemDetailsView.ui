@@ -19,7 +19,7 @@
      <rect>
       <x>20</x>
       <y>20</y>
-      <width>140</width>
+      <width>175</width>
       <height>140</height>
      </rect>
     </property>
@@ -72,7 +72,7 @@
       <x>400</x>
       <y>20</y>
       <width>121</width>
-      <height>141</height>
+      <height>150</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -173,7 +173,7 @@
    <widget class="QLabel" name="lblnbContracts">
     <property name="geometry">
      <rect>
-      <x>290</x>
+      <x>310</x>
       <y>220</y>
       <width>47</width>
       <height>13</height>
