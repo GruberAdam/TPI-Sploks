@@ -5,7 +5,7 @@ class Stock():
     # Gets all the stock from the database and returns them.
     #:return: A list of tuples.
     def getStock(self):
-        query = "SELECT sploks.items.*, sploks.gearstates.code, sploks.geartypes.name FROM sploks.items LEFT JOIN sploks.gearstates ON sploks.items.gearstate_id = sploks.gearstates.id LEFT JOIN sploks.geartypes ON sploks.items.geartype_id = sploks.geartypes.id"
+        query = "SELECT sploks.items.*, sploks.gearstates.description, sploks.geartypes.name FROM sploks.items LEFT JOIN sploks.gearstates ON sploks.items.gearstate_id = sploks.gearstates.id LEFT JOIN sploks.geartypes ON sploks.items.geartype_id = sploks.geartypes.id"
         # Opens a connection with the database
         connection = connectToDatabase(self)
         res = executeQuery(self, connection, query)
@@ -62,6 +62,7 @@ class Item(Stock):
             self.stock = self.item[0][8]
             self.articlenumber = self.item[0][9]
             self.type = self.item[0][10]
+        print("in")
 
     # It gets an item from the database by its id
     #:param id: The id of the item you want to get
@@ -146,5 +147,12 @@ class Item(Stock):
         res = executeQuery(self, connection, query)
         if not res:
             return {"error": True, "errorMessage" : "Le type séléctionné est inconnu"}
+
+        return res[0][0]
+
+    def getStateDescriptionFromId(self, id):
+        query = f"SELECT sploks.gearstates.description FROM sploks.gearstates WHERE sploks.gearstates.code = {id}"
+        connection = connectToDatabase(self)
+        res = executeQuery(self, connection, query)
 
         return res[0][0]
