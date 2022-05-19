@@ -130,6 +130,7 @@ class Item(Stock):
         res = executeQuery(self, connection, query)
         return {"error": False, "res": res}
 
+    # Updates item from the current instance of the object
     def updateItem(self):
         query = f"UPDATE sploks.items SET sploks.items.itemnb = '{self.itemNb}', sploks.items.brand = '{self.brand}', sploks.items.model = '{self.model}', sploks.items.size = '{self.size}', sploks.items.gearstate_id = '{self.state}', sploks.items.cost = '{self.cost}', sploks.items.returned = '{self.returned}', sploks.items.stock = '{self.stock}', sploks.items.articlenumber = '{self.articleNumber}', sploks.items.geartype_id = '{self.type}' WHERE sploks.items.id = {self.id}"
         connection = connectToDatabase(self)

@@ -354,10 +354,12 @@ class AddItemsUI(QtWidgets.QMainWindow):
     # Creates a new item with the fields inputed
 
     def buttonAdd(self):
+        global windowNeedsUpdate
         itemToAdd = self.getCreatedItem()
         if itemToAdd['error'] == True:
             self.displayErrorMessage(itemToAdd['errorMessage'])
             return
+        
 
         result = self.item.setItem(itemToAdd)
 
@@ -370,6 +372,7 @@ class AddItemsUI(QtWidgets.QMainWindow):
                 "color: green; border:none;")
             self.addItemWindow.textErrorMessage.setText("Contrat ajouté")
             self.addItemWindow.textCodeArticle.setText("")
+            windowNeedsUpdate = True
 
     # Displays the right widget according to the radioBox clicked
     def radioButtonChecked(self):
