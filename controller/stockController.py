@@ -1,3 +1,5 @@
+# It loads the stockView.ui file, and then loads the stock table.
+from pickle import FALSE
 from PyQt5 import QtWidgets, QtGui, uic, QtCore
 from PyQt5.QtWidgets import QCheckBox
 from PyQt5.QtCore import Qt
@@ -81,7 +83,7 @@ class StockUi(QtWidgets.QMainWindow):
     # It filters the stock table based on the user input.
 
     def filterButton(self):
-        filter = {"gearstate_id": self.stockWindow.textState.text().strip(),
+        filter = {"description": self.stockWindow.textState.text().strip(),
                   "brand": self.stockWindow.textBrand.text().strip(),
                   "model": self.stockWindow.textModel.text().strip(),
                   "articlenumber": self.stockWindow.textSerialNumber.text().strip()}
@@ -131,6 +133,7 @@ class StockUi(QtWidgets.QMainWindow):
 class ItemDetailsUi(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
+        self.editable = False
         self.itemDetailWindow = uic.loadUi("view/itemDetailsView.ui", self)
 
     # Setting up the UI of the inspector window.
@@ -143,20 +146,22 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
         numberOfContracts = self.item.getNumberOfContracts()
         incomeGenerated = self.item.getIncomeGenerated()
 
-        self.itemDetailWindow.btnContracts.clicked.connect(
-            self.contractsButton)
+        # Button Listener
+        self.itemDetailWindow.btnContracts.clicked.connect(self.contractsButton)
+        self.itemDetailWindow.btnEdit.clicked.connect(self.editButton)
+        self.itemDetailWindow.btnValider.clicked.connect(self.validateButton)
 
         # Setting the text of the labels
-        self.itemDetailWindow.lblCodeArticle.setText(str(self.item.itemNb))
-        self.itemDetailWindow.lblNumeroSerie.setText(
-            str(self.item.articlenumber))
-        self.itemDetailWindow.lblPrixAchat.setText(str(self.item.cost))
-        self.itemDetailWindow.lblRevenusGeneres.setText(str(incomeGenerated))
-        self.itemDetailWindow.lblMarque.setText(str(self.item.brand))
-        self.itemDetailWindow.lblModel.setText(str(self.item.model))
-        self.itemDetailWindow.lblType.setText(str(self.item.type))
-        self.itemDetailWindow.lblStock.setText(str(self.item.stock))
-        self.itemDetailWindow.lblTaille.setText(str(self.item.size))
+        self.itemDetailWindow.textCodeArticle.setText(str(self.item.itemNb))
+        self.itemDetailWindow.textNumeroSerie.setText(
+            str(self.item.articleNumber))
+        self.itemDetailWindow.textPrixAchat.setText(str(self.item.cost))
+        self.itemDetailWindow.textRevenusGeneres.setText(str(incomeGenerated))
+        self.itemDetailWindow.textMarque.setText(str(self.item.brand))
+        self.itemDetailWindow.textModel.setText(str(self.item.model))
+        self.itemDetailWindow.textType.setText(str(self.item.type))
+        self.itemDetailWindow.textStock.setText(str(self.item.stock))
+        self.itemDetailWindow.textTaille.setText(str(self.item.size))
         self.itemDetailWindow.lblnbContracts.setText(str(numberOfContracts))
 
         self.itemDetailWindow.show()
@@ -165,6 +170,62 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
     def contractsButton(self):
         contracts = contractsController.ContractsUi()
         contracts.setupUi(self.item.id, self.item.itemNb)
+    
+    def editButton(self):
+        if self.editable == False:
+            self.itemDetailWindow.textStock.setReadOnly(False)
+            self.editable = True
+            self.itemDetailWindow.btnValider.setEnabled(True)
+            self.itemDetailWindow.textErrorMessage.setStyleSheet("color: green; border:none;")
+            self.itemDetailWindow.textErrorMessage.setText("Les champs sont désormait éditable")
+        else:
+            self.itemDetailWindow.textStock.setReadOnly(True)
+            self.editable = False
+            self.itemDetailWindow.btnValider.setEnabled(False)
+            self.itemDetailWindow.textErrorMessage.setStyleSheet("color: red; border:none;")
+            self.itemDetailWindow.textErrorMessage.setText("Les champs ne sont plus éditable")
+
+    def checkFields(self):
+        newStock = self.itemDetailWindow.textStock.text()
+
+        if not newStock:
+            return {"error" : True, "errorMessage" : "Le stock ne peux pas être vide"}
+        if newStock.isnumeric() == False:
+            return {"error" : True, "errorMessage" : "Le stock doit être un numbre"}
+
+        return {"error" : False}
+
+    def validateButton(self):
+        global windowNeedsUpdate
+        res = self.checkFields()
+
+        if res['error']:
+            self.displayErrorMessage(res['errorMessage'])
+        else:
+            self.item.setItem({"stock" : self.itemDetailWindow.textStock.text()})
+            self.item.updateItem()
+            self.itemDetailWindow.close()
+            windowNeedsUpdate = True
+
+    #Displays in a label the error given
+    def displayErrorMessage(self, error):
+        self.itemDetailWindow.textErrorMessage.setStyleSheet(
+            "color: red; border:none;")
+        self.itemDetailWindow.textErrorMessage.setText(error)
+
+    def event(self, event):
+        if event.type() == QtCore.QEvent.KeyPress:
+            if event.key() in (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter):
+                if self.itemDetailWindow.btnEdit.hasFocus():
+                    self.editButton()
+                if self.itemDetailWindow.btnValider.hasFocus():
+                    self.validateButton()
+                if self.itemDetailWindow.btnContracts.hasFocus():
+                    self.contractsButton()
+                self.focusNextPrevChild(True) # Goes to next widget
+                self.window().setAttribute(Qt.WA_KeyboardFocusChange) # Styles the border painting
+
+        return super().event(event)
 
 
 class AddItemsUI(QtWidgets.QMainWindow):
@@ -280,9 +341,7 @@ class AddItemsUI(QtWidgets.QMainWindow):
                     return {"error" : True, "errorMessage" : itemToAdd['state']['errorMessage']}
             except:
                 return itemToAdd
-            
 
-            
 
     # Leaves the window and updates it in the list of the items
     def buttonValidate(self):
@@ -295,10 +354,12 @@ class AddItemsUI(QtWidgets.QMainWindow):
     # Creates a new item with the fields inputed
 
     def buttonAdd(self):
+        global windowNeedsUpdate
         itemToAdd = self.getCreatedItem()
         if itemToAdd['error'] == True:
             self.displayErrorMessage(itemToAdd['errorMessage'])
             return
+        
 
         result = self.item.setItem(itemToAdd)
 
@@ -311,6 +372,7 @@ class AddItemsUI(QtWidgets.QMainWindow):
                 "color: green; border:none;")
             self.addItemWindow.textErrorMessage.setText("Contrat ajouté")
             self.addItemWindow.textCodeArticle.setText("")
+            windowNeedsUpdate = True
 
     # Displays the right widget according to the radioBox clicked
     def radioButtonChecked(self):

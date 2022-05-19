@@ -30,7 +30,8 @@ class Stock():
 
         filteredQuery = filteredQuery[:-3]  # Removes the last "AND"
 
-        query = "SELECT sploks.items.*, sploks.gearstates.code, sploks.geartypes.name FROM sploks.items LEFT JOIN sploks.gearstates ON sploks.items.gearstate_id = sploks.gearstates.id LEFT JOIN sploks.geartypes ON sploks.items.geartype_id = sploks.geartypes.id " + filteredQuery
+        query = "SELECT sploks.items.*, sploks.gearstates.description, sploks.geartypes.name FROM sploks.items LEFT JOIN sploks.gearstates ON sploks.items.gearstate_id = sploks.gearstates.id LEFT JOIN sploks.geartypes ON sploks.items.geartype_id = sploks.geartypes.id " + filteredQuery
+        print(query)
         # Opens a connection with the database
         connection = connectToDatabase(self)
         res = executeQuery(self, connection, query)
@@ -60,9 +61,8 @@ class Item(Stock):
             self.cost = self.item[0][6]
             self.returned = self.item[0][7]
             self.stock = self.item[0][8]
-            self.articlenumber = self.item[0][9]
+            self.articleNumber = self.item[0][9]
             self.type = self.item[0][10]
-        print("in")
 
     # It gets an item from the database by its id
     #:param id: The id of the item you want to get
@@ -129,6 +129,12 @@ class Item(Stock):
         connection = connectToDatabase(self)
         res = executeQuery(self, connection, query)
         return {"error": False, "res": res}
+
+    # Updates item from the current instance of the object
+    def updateItem(self):
+        query = f"UPDATE sploks.items SET sploks.items.itemnb = '{self.itemNb}', sploks.items.brand = '{self.brand}', sploks.items.model = '{self.model}', sploks.items.size = '{self.size}', sploks.items.gearstate_id = '{self.state}', sploks.items.cost = '{self.cost}', sploks.items.returned = '{self.returned}', sploks.items.stock = '{self.stock}', sploks.items.articlenumber = '{self.articleNumber}', sploks.items.geartype_id = '{self.type}' WHERE sploks.items.id = {self.id}"
+        connection = connectToDatabase(self)
+        res = executeQuery(self, connection, query)
 
     # From the description of the state, it gets the matching ID
     def getStateIdFromDescription(self, description):
