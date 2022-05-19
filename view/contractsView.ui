@@ -26,6 +26,9 @@
     <property name="locale">
      <locale language="French" country="Switzerland"/>
     </property>
+    <property name="editTriggers">
+     <set>QAbstractItemView::NoEditTriggers</set>
+    </property>
     <column>
      <property name="text">
       <string>ID</string>

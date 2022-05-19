@@ -62,7 +62,7 @@ class Item(Stock):
             self.returned = self.item[0][7]
             self.stock = self.item[0][8]
             self.articleNumber = self.item[0][9]
-            self.type = self.item[0][10]
+            self.type = self.item[0][11]
 
     # It gets an item from the database by its id
     #:param id: The id of the item you want to get
@@ -96,7 +96,10 @@ class Item(Stock):
         connection = connectToDatabase(self)
         res = executeQuery(self, connection, query)
 
-        return res[0][0]
+        if res[0][0] == None:
+            return 0
+        else:
+            return res[0][0]
 
     # Sets all the properties of the item thanks to the properties param
     #:param properties: a list of tuples, each tuple containing a key and a value
@@ -132,7 +135,7 @@ class Item(Stock):
 
     # Updates item from the current instance of the object
     def updateItem(self):
-        query = f"UPDATE sploks.items SET sploks.items.itemnb = '{self.itemNb}', sploks.items.brand = '{self.brand}', sploks.items.model = '{self.model}', sploks.items.size = '{self.size}', sploks.items.gearstate_id = '{self.state}', sploks.items.cost = '{self.cost}', sploks.items.returned = '{self.returned}', sploks.items.stock = '{self.stock}', sploks.items.articlenumber = '{self.articleNumber}', sploks.items.geartype_id = '{self.type}' WHERE sploks.items.id = {self.id}"
+        query = f"UPDATE sploks.items SET sploks.items.itemnb = '{self.itemNb}', sploks.items.brand = '{self.brand}', sploks.items.model = '{self.model}', sploks.items.size = '{self.size}', sploks.items.gearstate_id = '{self.state}', sploks.items.cost = '{self.cost}', sploks.items.returned = '{self.returned}', sploks.items.stock = '{self.stock}', sploks.items.articlenumber = '{self.articleNumber}', sploks.items.geartype_id = '{self.getTypeIdFromName(self.type)}' WHERE sploks.items.id = {self.id}"
         connection = connectToDatabase(self)
         res = executeQuery(self, connection, query)
 
