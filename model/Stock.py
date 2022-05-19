@@ -31,7 +31,6 @@ class Stock():
         filteredQuery = filteredQuery[:-3]  # Removes the last "AND"
 
         query = "SELECT sploks.items.*, sploks.gearstates.description, sploks.geartypes.name FROM sploks.items LEFT JOIN sploks.gearstates ON sploks.items.gearstate_id = sploks.gearstates.id LEFT JOIN sploks.geartypes ON sploks.items.geartype_id = sploks.geartypes.id " + filteredQuery
-        print(query)
         # Opens a connection with the database
         connection = connectToDatabase(self)
         res = executeQuery(self, connection, query)
@@ -141,6 +140,9 @@ class Item(Stock):
 
     # From the description of the state, it gets the matching ID
     def getStateIdFromDescription(self, description):
+        if description == "Tous":
+            return ""
+
         query = f"SELECT sploks.gearstates.id FROM sploks.gearstates WHERE sploks.gearstates.description = '{description}'"
         connection = connectToDatabase(self)
         res = executeQuery(self, connection, query)

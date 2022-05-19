@@ -19,14 +19,14 @@ class StockUi(QtWidgets.QMainWindow):
         self.stockWindow.textBrand.installEventFilter(self)
         self.stockWindow.textModel.installEventFilter(self)
         self.stockWindow.textSerialNumber.installEventFilter(self)
-        self.stockWindow.textState.installEventFilter(self)
+        self.stockWindow.comboBoxEtat.activated.connect(self.comboBoxEvent)
         self.stockWindow.btnFiltrer.clicked.connect(self.filterButton)
         self.stockWindow.btnAdd.clicked.connect(self.addButton)
 
         self.loadItems(self.stock.getStock())
 
         self.stockWindow.show()
-
+    
     # Writes all the data in the table
     def loadItems(self, stock):
 
@@ -78,12 +78,11 @@ class StockUi(QtWidgets.QMainWindow):
         self.stockWindow.textBrand.setText("")
         self.stockWindow.textModel.setText("")
         self.stockWindow.textSerialNumber.setText("")
-        self.stockWindow.textState.setText("")
 
     # It filters the stock table based on the user input.
 
     def filterButton(self):
-        filter = {"description": self.stockWindow.textState.text().strip(),
+        filter = {"code": Item.getStateIdFromDescription(self, self.stockWindow.comboBoxEtat.currentText()),
                   "brand": self.stockWindow.textBrand.text().strip(),
                   "model": self.stockWindow.textModel.text().strip(),
                   "articlenumber": self.stockWindow.textSerialNumber.text().strip()}
@@ -107,16 +106,20 @@ class StockUi(QtWidgets.QMainWindow):
     #:return: The return value is a boolean value. If the event is handled, the function should return
     # True. If the event should be propagated further, the function should return False.
 
+        
+    def comboBoxEvent(self):
+        self.filterButton()
+
     def eventFilter(self, object, event):
         global windowNeedsUpdate
         if self.stockWindow.tableStock.selectedIndexes() != []:  # Checks that the user clicked on a cell
             if event.type() == QtCore.QEvent.MouseButtonDblClick:  # If user double clicked
                 row = self.stockWindow.tableStock.currentRow()  # gets row clicked
-                id = self.stockWindow.tableStock.item(
-                    row, 0).text()  # gets id based on click
+                id = self.stockWindow.tableStock.item(row, 0).text()  # gets id based on click
 
                 self.detailledUi = ItemDetailsUi()  # Prepare the second window
                 self.detailledUi.setupUi(id)
+
         # Checks that it's a keypress and from a QTextEdit event
         if event.type() == QtCore.QEvent.KeyPress and object.hasSelectedText() == QtWidgets.QLineEdit(self).hasSelectedText():
             if event.key() == QtCore.Qt.Key_Return:
@@ -126,6 +129,18 @@ class StockUi(QtWidgets.QMainWindow):
             self.loadItems(self.stock.getStock())
             windowNeedsUpdate = False
         return False
+    
+    def event(self,event):
+        if event.type() == QtCore.QEvent.KeyPress:
+            if event.key() == QtCore.Qt.Key_Return:
+                if self.stockWindow.tableStock.selectedIndexes():
+                    row = self.stockWindow.tableStock.currentRow()  # gets row clicked
+                    id = self.stockWindow.tableStock.item(row, 0).text()  # gets id based on click
+
+                    self.detailledUi = ItemDetailsUi()  # Prepare the second window
+                    self.detailledUi.setupUi(id)
+        return super().event(event)
+
 
 # Loads the ui file and creates a window.
 

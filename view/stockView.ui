@@ -15,6 +15,9 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTableWidget" name="tableStock">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -22,6 +25,9 @@
       <width>1131</width>
       <height>491</height>
      </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
     </property>
     <property name="locale">
      <locale language="French" country="Switzerland"/>
@@ -146,22 +152,6 @@
      <string>N/S</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="textState">
-    <property name="geometry">
-     <rect>
-      <x>620</x>
-      <y>20</y>
-      <width>81</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="placeholderText">
-     <string>Etat</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
@@ -188,23 +178,62 @@
      <string>Ajouter des articles</string>
     </property>
    </widget>
+   <widget class="QComboBox" name="comboBoxEtat">
+    <property name="geometry">
+     <rect>
+      <x>620</x>
+      <y>20</y>
+      <width>81</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::WheelFocus</enum>
+    </property>
+    <item>
+     <property name="text">
+      <string>Tous</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Neuf</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Usagé</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Vieux</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Terminé</string>
+     </property>
+    </item>
+   </widget>
    <zorder>btnFiltrer</zorder>
    <zorder>tableStock</zorder>
    <zorder>textBrand</zorder>
    <zorder>textModel</zorder>
    <zorder>textSerialNumber</zorder>
-   <zorder>textState</zorder>
    <zorder>label</zorder>
    <zorder>btnAdd</zorder>
+   <zorder>comboBoxEtat</zorder>
   </widget>
  </widget>
  <tabstops>
-  <tabstop>tableStock</tabstop>
   <tabstop>textBrand</tabstop>
   <tabstop>textModel</tabstop>
   <tabstop>textSerialNumber</tabstop>
-  <tabstop>textState</tabstop>
+  <tabstop>comboBoxEtat</tabstop>
   <tabstop>btnFiltrer</tabstop>
+  <tabstop>btnAdd</tabstop>
+  <tabstop>tableStock</tabstop>
  </tabstops>
  <resources/>
  <connections/>
