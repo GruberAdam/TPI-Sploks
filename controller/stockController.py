@@ -153,10 +153,10 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
 
         # Setting the text of the labels
         self.itemDetailWindow.textCodeArticle.setText(str(self.item.itemNb))
-        self.itemDetailWindow.textNumeroSerie.setText(
-            str(self.item.articleNumber))
-        self.itemDetailWindow.textPrixAchat.setText(str(self.item.cost))
-        self.itemDetailWindow.textRevenusGeneres.setText(str(incomeGenerated))
+        self.itemDetailWindow.textNumeroSerie.setText(str(self.item.articleNumber))
+        self.itemDetailWindow.comboBoxEtat.setCurrentIndex(self.item.state - 1)
+        self.itemDetailWindow.textPrixAchat.setText(str(self.item.cost) + " CHF")
+        self.itemDetailWindow.textRevenusGeneres.setText(str(incomeGenerated) + " CHF")
         self.itemDetailWindow.textMarque.setText(str(self.item.brand))
         self.itemDetailWindow.textModel.setText(str(self.item.model))
         self.itemDetailWindow.textType.setText(str(self.item.type))

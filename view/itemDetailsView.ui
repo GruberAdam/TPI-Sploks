@@ -45,6 +45,16 @@
       </widget>
      </item>
      <item>
+      <widget class="QLabel" name="label_11">
+       <property name="styleSheet">
+        <string notr="true">font: 87 10pt &quot;Arial Black&quot;;</string>
+       </property>
+       <property name="text">
+        <string>Etat</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QLabel" name="label_9">
        <property name="styleSheet">
         <string notr="true">font: 87 10pt &quot;Arial Black&quot;;</string>
@@ -222,7 +232,7 @@
      </rect>
     </property>
     <property name="maxLength">
-     <number>7</number>
+     <number>20</number>
     </property>
     <property name="readOnly">
      <bool>true</bool>
@@ -232,13 +242,13 @@
     <property name="geometry">
      <rect>
       <x>200</x>
-      <y>60</y>
+      <y>50</y>
       <width>131</width>
       <height>20</height>
      </rect>
     </property>
     <property name="maxLength">
-     <number>7</number>
+     <number>20</number>
     </property>
     <property name="readOnly">
      <bool>true</bool>
@@ -248,7 +258,7 @@
     <property name="geometry">
      <rect>
       <x>200</x>
-      <y>100</y>
+      <y>110</y>
       <width>131</width>
       <height>20</height>
      </rect>
@@ -302,7 +312,7 @@
      </rect>
     </property>
     <property name="maxLength">
-     <number>7</number>
+     <number>20</number>
     </property>
     <property name="readOnly">
      <bool>true</bool>
@@ -334,7 +344,7 @@
      </rect>
     </property>
     <property name="maxLength">
-     <number>7</number>
+     <number>20</number>
     </property>
     <property name="readOnly">
      <bool>true</bool>
@@ -387,11 +397,51 @@ color: red;</string>
      <bool>true</bool>
     </property>
    </widget>
+   <widget class="QComboBox" name="comboBoxEtat">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>80</y>
+      <width>131</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::WheelFocus</enum>
+    </property>
+    <property name="editable">
+     <bool>false</bool>
+    </property>
+    <item>
+     <property name="text">
+      <string>Terminé</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Neuf</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Usagé</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Vieux</string>
+     </property>
+    </item>
+   </widget>
   </widget>
  </widget>
  <tabstops>
   <tabstop>textCodeArticle</tabstop>
   <tabstop>textNumeroSerie</tabstop>
+  <tabstop>comboBoxEtat</tabstop>
   <tabstop>textPrixAchat</tabstop>
   <tabstop>textRevenusGeneres</tabstop>
   <tabstop>textMarque</tabstop>
