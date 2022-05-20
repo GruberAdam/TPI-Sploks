@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>742</width>
-    <height>300</height>
+    <width>797</width>
+    <height>341</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <x>20</x>
       <y>20</y>
       <width>175</width>
-      <height>140</height>
+      <height>181</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -31,26 +31,6 @@
        </property>
        <property name="text">
         <string>Code d'article:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="label_3">
-       <property name="styleSheet">
-        <string notr="true">font: 87 10pt &quot;Arial Black&quot;;</string>
-       </property>
-       <property name="text">
-        <string>Numéro de série:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="label_11">
-       <property name="styleSheet">
-        <string notr="true">font: 87 10pt &quot;Arial Black&quot;;</string>
-       </property>
-       <property name="text">
-        <string>Etat</string>
        </property>
       </widget>
      </item>
@@ -71,6 +51,16 @@
        </property>
        <property name="text">
         <string>Revenues générés:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_12">
+       <property name="styleSheet">
+        <string notr="true">font: 87 10pt &quot;Arial Black&quot;;</string>
+       </property>
+       <property name="text">
+        <string>Type stock</string>
        </property>
       </widget>
      </item>
@@ -117,12 +107,12 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_8">
+      <widget class="QLabel" name="label_11">
        <property name="styleSheet">
         <string notr="true">font: 87 10pt &quot;Arial Black&quot;;</string>
        </property>
        <property name="text">
-        <string>Stock:</string>
+        <string>Etat</string>
        </property>
       </widget>
      </item>
@@ -141,8 +131,8 @@
    <widget class="Line" name="line">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>170</y>
+      <x>20</x>
+      <y>220</y>
       <width>671</width>
       <height>16</height>
      </rect>
@@ -154,8 +144,8 @@
    <widget class="QPushButton" name="btnContracts">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>190</y>
+      <x>20</x>
+      <y>240</y>
       <width>151</width>
       <height>51</height>
      </rect>
@@ -167,8 +157,8 @@
    <widget class="QLabel" name="label_5">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>206</y>
+      <x>190</x>
+      <y>256</y>
       <width>111</width>
       <height>20</height>
      </rect>
@@ -183,8 +173,8 @@
    <widget class="QLabel" name="lblnbContracts">
     <property name="geometry">
      <rect>
-      <x>300</x>
-      <y>210</y>
+      <x>290</x>
+      <y>260</y>
       <width>47</width>
       <height>13</height>
      </rect>
@@ -196,8 +186,8 @@
    <widget class="QPushButton" name="btnEdit">
     <property name="geometry">
      <rect>
-      <x>470</x>
-      <y>190</y>
+      <x>460</x>
+      <y>240</y>
       <width>111</width>
       <height>51</height>
      </rect>
@@ -212,8 +202,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>590</x>
-      <y>190</y>
+      <x>580</x>
+      <y>240</y>
       <width>111</width>
       <height>51</height>
      </rect>
@@ -226,23 +216,7 @@
     <property name="geometry">
      <rect>
       <x>200</x>
-      <y>20</y>
-      <width>131</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="maxLength">
-     <number>20</number>
-    </property>
-    <property name="readOnly">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="textNumeroSerie">
-    <property name="geometry">
-     <rect>
-      <x>200</x>
-      <y>50</y>
+      <y>30</y>
       <width>131</width>
       <height>20</height>
      </rect>
@@ -258,13 +232,13 @@
     <property name="geometry">
      <rect>
       <x>200</x>
-      <y>110</y>
+      <y>80</y>
       <width>131</width>
       <height>20</height>
      </rect>
     </property>
     <property name="maxLength">
-     <number>7</number>
+     <number>32767</number>
     </property>
     <property name="readOnly">
      <bool>true</bool>
@@ -274,7 +248,7 @@
     <property name="geometry">
      <rect>
       <x>200</x>
-      <y>140</y>
+      <y>120</y>
       <width>131</width>
       <height>20</height>
      </rect>
@@ -295,8 +269,14 @@
       <height>20</height>
      </rect>
     </property>
+    <property name="inputMethodHints">
+     <set>Qt::ImhDigitsOnly|Qt::ImhUppercaseOnly</set>
+    </property>
     <property name="maxLength">
-     <number>7</number>
+     <number>32767</number>
+    </property>
+    <property name="cursorPosition">
+     <number>0</number>
     </property>
     <property name="readOnly">
      <bool>true</bool>
@@ -318,22 +298,6 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QLineEdit" name="textStock">
-    <property name="geometry">
-     <rect>
-      <x>540</x>
-      <y>120</y>
-      <width>131</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="maxLength">
-     <number>7</number>
-    </property>
-    <property name="readOnly">
-     <bool>true</bool>
-    </property>
-   </widget>
    <widget class="QLineEdit" name="textMarque">
     <property name="geometry">
      <rect>
@@ -350,27 +314,11 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QLineEdit" name="textType">
-    <property name="geometry">
-     <rect>
-      <x>540</x>
-      <y>90</y>
-      <width>131</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="maxLength">
-     <number>7</number>
-    </property>
-    <property name="readOnly">
-     <bool>true</bool>
-    </property>
-   </widget>
    <widget class="QLineEdit" name="textErrorMessage">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>250</y>
+      <x>20</x>
+      <y>300</y>
       <width>321</width>
       <height>31</height>
      </rect>
@@ -403,8 +351,8 @@ color: red;</string>
     </property>
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>80</y>
+      <x>540</x>
+      <y>120</y>
       <width>131</width>
       <height>22</height>
      </rect>
@@ -436,18 +384,76 @@ color: red;</string>
      </property>
     </item>
    </widget>
+   <widget class="QLineEdit" name="textStock">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>200</y>
+      <width>113</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="echoMode">
+     <enum>QLineEdit::Normal</enum>
+    </property>
+    <property name="placeholderText">
+     <string>Nombre</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioMultiple">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>200</y>
+      <width>82</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Multiple</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioUnique">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>180</y>
+      <width>82</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Unique</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBoxVide">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>180</y>
+      <width>91</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Pas en stock</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <tabstops>
   <tabstop>textCodeArticle</tabstop>
-  <tabstop>textNumeroSerie</tabstop>
   <tabstop>comboBoxEtat</tabstop>
   <tabstop>textPrixAchat</tabstop>
   <tabstop>textRevenusGeneres</tabstop>
   <tabstop>textMarque</tabstop>
   <tabstop>textModel</tabstop>
-  <tabstop>textType</tabstop>
-  <tabstop>textStock</tabstop>
   <tabstop>textTaille</tabstop>
   <tabstop>btnContracts</tabstop>
   <tabstop>btnEdit</tabstop>
