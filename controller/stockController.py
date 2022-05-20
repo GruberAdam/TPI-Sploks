@@ -1,5 +1,7 @@
 # It loads the stockView.ui file, and then loads the stock table.
 from pickle import FALSE
+
+from mysqlx import Row
 from PyQt5 import QtWidgets, QtGui, uic, QtCore
 from PyQt5.QtCore import Qt
 from packages.PyQt5.ExtendedCombo import ExtendedComboBox
@@ -96,6 +98,15 @@ class StockUi(QtWidgets.QMainWindow):
 
     def addButton(self):
         self.addItemsUi = AddItemsUI()
+        
+    def comboBoxEvent(self):
+        self.filterButton()
+
+    # Fills the row of a color from the row given
+    def fillSelectedRowColor(self, row):
+        for i in range(11):
+            self.stockWindow.tableStock.item(row, i).setBackground(QtGui.QColor(51,120,210))
+
 
     # If the user double clicks on a cell in the table, get the row and the id of the item, then open the
     # second window and pass the id to it.
@@ -104,18 +115,13 @@ class StockUi(QtWidgets.QMainWindow):
     #:param event: The event that was triggered
     #:return: The return value is a boolean value. If the event is handled, the function should return
     # True. If the event should be propagated further, the function should return False.
-
-        
-    def comboBoxEvent(self):
-        self.filterButton()
-
     def eventFilter(self, object, event):
         global windowNeedsUpdate
         if self.stockWindow.tableStock.selectedIndexes() != []:  # Checks that the user clicked on a cell
             if event.type() == QtCore.QEvent.MouseButtonDblClick:  # If user double clicked
                 row = self.stockWindow.tableStock.currentRow()  # gets row clicked
                 id = self.stockWindow.tableStock.item(row, 0).text()  # gets id based on click
-
+                self.fillSelectedRowColor(row)
                 self.detailledUi = ItemDetailsUi()  # Prepare the second window
                 self.detailledUi.setupUi(id)
 
@@ -147,6 +153,10 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
         super().__init__()
         self.editable = False
         self.itemDetailWindow = uic.loadUi("view/itemDetailsView.ui", self)
+
+    def closeEvent(self,event):
+        global windowNeedsUpdate
+        windowNeedsUpdate = True
 
     # Setting up the UI of the inspector window.
     #:param id: the id of the customer
@@ -309,6 +319,10 @@ class AddItemsUI(QtWidgets.QMainWindow):
         self.addItemWindow = uic.loadUi("view/addItemsView.ui", self)
         self.setupUi()
         self.addItemWindow.show()
+
+    def closeEvent(self,event):
+        global windowNeedsUpdate
+        windowNeedsUpdate = True
 
     # Sets up the UI
     def setupUi(self):
