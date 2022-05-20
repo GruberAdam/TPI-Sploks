@@ -1,17 +1,12 @@
-# It loads the stockView.ui file, and then loads the stock table.
-from pickle import FALSE
-
-from mysqlx import Row
 from PyQt5 import QtWidgets, QtGui, uic, QtCore
 from PyQt5.QtCore import Qt
-from packages.PyQt5.ExtendedCombo import ExtendedComboBox
 from controller import contractsController
 from model.Stock import *
 from PyQt5.QtWidgets import QComboBox
 
 windowNeedsUpdate = False
 
-
+# It loads the stockView.ui file, and then loads the stock table.
 class StockUi(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
@@ -321,8 +316,7 @@ class AddItemsUI(QtWidgets.QMainWindow):
         self.addItemWindow.show()
 
     def closeEvent(self,event):
-        global windowNeedsUpdate
-        windowNeedsUpdate = True
+        self.buttonValidate()
 
     # Sets up the UI
     def setupUi(self):
@@ -335,15 +329,20 @@ class AddItemsUI(QtWidgets.QMainWindow):
         self.addItemWindow.btnEncore.clicked.connect(self.buttonAdd)
         self.addItemWindow.radioUnique.clicked.connect(self.radioButtonChecked)
         self.addItemWindow.radioMultiple.clicked.connect(self.radioButtonChecked)
+
+        # Accepts number only
+        self.addItemWindow.textTaille.setValidator(QtGui.QIntValidator())
+        self.addItemWindow.textPrix.setValidator(QtGui.QIntValidator())
+        self.addItemWindow.textStock.setValidator(QtGui.QIntValidator())
         
         # Hides text behind both radioBoxes
-        self.addItemWindow.textNumeroSerie.hide()
+        #self.addItemWindow.textNumeroSerie.hide()
         self.addItemWindow.textStock.hide()
 
         # Setting the tab order
         tabOrder = [self.addItemWindow.textCodeArticle, self.addItemWindow.textMarque, self.addItemWindow.textModel, 
         self.comboBoxType, self.addItemWindow.textTaille, self.addItemWindow.comboBoxEtat, self.addItemWindow.textPrix,
-        self.addItemWindow.radioUnique, self.addItemWindow.textNumeroSerie,self.addItemWindow.radioMultiple, self.addItemWindow.textStock,
+        self.addItemWindow.radioUnique, self.addItemWindow.radioMultiple, self.addItemWindow.textStock,
         self.addItemWindow.btnEncore, self.addItemWindow.btnValider]
 
         self.setTabOrder(tabOrder[0], tabOrder[1])
@@ -357,7 +356,6 @@ class AddItemsUI(QtWidgets.QMainWindow):
         self.setTabOrder(tabOrder[8], tabOrder[9])
         self.setTabOrder(tabOrder[9], tabOrder[10])
         self.setTabOrder(tabOrder[10], tabOrder[11])
-        self.setTabOrder(tabOrder[11], tabOrder[12])
 
     # Sets up the comboBox
     def setupComboBox(self):
@@ -379,7 +377,6 @@ class AddItemsUI(QtWidgets.QMainWindow):
     #:return: A dictionary with the values of the fields in the addItemWindow.
     def getCreatedItem(self):
         res = self.checkRequiredFields()
-
         if res['error'] == True:
             return res
 
@@ -387,7 +384,6 @@ class AddItemsUI(QtWidgets.QMainWindow):
             itemToAdd = {
                 "error": False,
                 "itemNumber": self.addItemWindow.textCodeArticle.text(),
-                "serialNumber": "-",
                 "state": self.item.getStateIdFromDescription(self.addItemWindow.comboBoxEtat.currentText()),
                 "price": self.addItemWindow.textPrix.text(),
                 "brand": self.addItemWindow.textMarque.text(),
@@ -411,7 +407,6 @@ class AddItemsUI(QtWidgets.QMainWindow):
             itemToAdd = {
                 "error": False,
                 "itemNumber": self.addItemWindow.textCodeArticle.text(),
-                "serialNumber": self.addItemWindow.textNumeroSerie.text(),
                 "state": self.item.getStateIdFromDescription(self.addItemWindow.comboBoxEtat.currentText()),
                 "price": self.addItemWindow.textPrix.text(),
                 "brand": self.addItemWindow.textMarque.text(),
@@ -465,16 +460,13 @@ class AddItemsUI(QtWidgets.QMainWindow):
     # Displays the right widget according to the radioBox clicked
     def radioButtonChecked(self):
         if self.addItemWindow.radioUnique.isChecked():
-            self.addItemWindow.textNumeroSerie.setVisible(True)
             self.addItemWindow.textStock.hide()
         if self.addItemWindow.radioMultiple.isChecked():
             self.addItemWindow.textStock.setVisible(True)
-            self.addItemWindow.textNumeroSerie.hide()
 
     # Displays in a label the error given
     def displayErrorMessage(self, error):
-        self.addItemWindow.textErrorMessage.setStyleSheet(
-            "color: red; border:none;")
+        self.addItemWindow.textErrorMessage.setStyleSheet("color: red; border:none;")
         self.addItemWindow.textErrorMessage.setText(error)
 
     # Checks the requirement of each fields
@@ -495,24 +487,14 @@ class AddItemsUI(QtWidgets.QMainWindow):
         if not self.addItemWindow.textStock.text() and self.addItemWindow.radioMultiple.isChecked() == True:
             return {"error": True, "errorMessage": "Le champ 'Nombre' est obligatoire"}
 
+        if not self.addItemWindow.textPrix.text():
+            self.addItemWindow.textPrix.setText("0")
+
         # Radio button check
         if self.addItemWindow.radioMultiple.isChecked() == False and self.addItemWindow.radioUnique.isChecked() == False:
             return {"error": True, "errorMessage": "Veuillez choisir un 'Type Stock'"}
 
-        # Numeric checks
-        if self.addItemWindow.textTaille.text().isnumeric() == False:
-            return {"error": True, "errorMessage": "Le champ 'Taille' doit être un nombre"}
-
-        if self.addItemWindow.textPrix.text().isnumeric() == False and len(self.addItemWindow.textPrix.text().strip()) > 0:
-            return {"error": True, "errorMessage": "Le champ 'Prix' doit être un nombre"}
-
-        if self.addItemWindow.textStock.text().isnumeric() == False and self.addItemWindow.radioMultiple.isChecked() == True:
-            return {"error": True, "errorMessage": "Le champ 'Nombre' doit être un nombre"}
-
-        if not self.addItemWindow.textPrix.text():
-            self.addItemWindow.textPrix.setText("0")
-
-        return {"error": False}
+        return self.item.checkitemNumber(self.addItemWindow.textCodeArticle.text())
 
 
     # Every kind of events come in this function
@@ -540,6 +522,14 @@ class AddItemsUI(QtWidgets.QMainWindow):
                 # Clicks on the "Valider" Button if it has focus and enter key is pressed
                 if self.addItemWindow.btnValider.hasFocus():
                     self.buttonValidate()
+
+                # Shows "Type" content if it has focus and enter key is pressed
+                if self.addItemWindow.comboBoxType.hasFocus():
+                    self.addItemWindow.comboBoxType.showPopup()
+
+                # Shows "Etat" content if it has focus and enter key is pressed
+                if self.addItemWindow.comboBoxEtat.hasFocus():
+                    self.addItemWindow.comboBoxEtat.showPopup()
 
                 self.focusNextPrevChild(True) # Goes to next widget
                 self.window().setAttribute(Qt.WA_KeyboardFocusChange) # Styles the border painting

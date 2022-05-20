@@ -134,22 +134,6 @@ height: 40px
      </rect>
     </property>
    </widget>
-   <widget class="QLineEdit" name="textNumeroSerie">
-    <property name="geometry">
-     <rect>
-      <x>230</x>
-      <y>160</y>
-      <width>113</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="echoMode">
-     <enum>QLineEdit::Normal</enum>
-    </property>
-    <property name="placeholderText">
-     <string>Numéro de Serie (S/N)</string>
-    </property>
-   </widget>
    <widget class="QLineEdit" name="textPrix">
     <property name="geometry">
      <rect>
@@ -349,7 +333,6 @@ color: red;</string>
   <tabstop>textTaille</tabstop>
   <tabstop>radioUnique</tabstop>
   <tabstop>radioMultiple</tabstop>
-  <tabstop>textNumeroSerie</tabstop>
   <tabstop>textStock</tabstop>
   <tabstop>btnEncore</tabstop>
   <tabstop>btnValider</tabstop>

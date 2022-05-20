@@ -127,7 +127,7 @@ class Item(Stock):
     #:param item: a dictionary containing the following keys:
     #:return: The result of the query
     def addItem(self):
-        query = f"INSERT INTO sploks.items (itemnb, brand, model, size, gearstate_id, cost, returned, stock, articlenumber, geartype_id) VALUES ('{self.itemNb}', '{self.brand}', '{self.model}', '{self.size}','{self.state}', '{self.cost}', '{0}', '{self.stock}', '{self.articleNumber}', '{self.type}')"
+        query = f"INSERT INTO sploks.items (itemnb, brand, model, size, gearstate_id, cost, returned, stock, articlenumber, geartype_id) VALUES ('{self.itemNb}', '{self.brand}', '{self.model}', '{self.size}','{self.state}', '{self.cost}', '{0}', '{self.stock}', 'SUPPRIME', '{self.type}')"
         connection = connectToDatabase(self)
         res = executeQuery(self, connection, query)
         return {"error": False, "res": res}
@@ -167,3 +167,14 @@ class Item(Stock):
         res = executeQuery(self, connection, query)
 
         return res[0][0]
+
+    # Checks from the string given, if another articleNumber exists
+    def checkitemNumber(self, string):
+        query = f"SELECT sploks.items.itemnb FROM sploks.items WHERE itemnb = '{string}'"
+        connection = connectToDatabase(self)
+        res = executeQuery(self, connection, query)
+
+        if not res:
+            return {"error" : False}
+        else:
+            return{"error" : True, "errorMessage" : "Le code article entré n'est pas unique"}
