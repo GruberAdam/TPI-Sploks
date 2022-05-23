@@ -12,21 +12,26 @@ class StockUi(QtWidgets.QMainWindow):
         super().__init__()
         self.stock = Stock()
         self.stockWindow = uic.loadUi("view/stockView.ui", self)
+        self.selectedId = None
 
+        # Event listener
         self.stockWindow.textBrand.installEventFilter(self)
         self.stockWindow.textModel.installEventFilter(self)
         self.stockWindow.textSerialNumber.installEventFilter(self)
         self.stockWindow.comboBoxEtat.activated.connect(self.comboBoxEvent)
         self.stockWindow.btnFiltrer.clicked.connect(self.filterButton)
         self.stockWindow.btnAdd.clicked.connect(self.addButton)
+        self.stockWindow.tableStock.clicked.connect(self.singleClickCell)
+
+        self.stockWindow.textBrand.setFocus()
 
         self.loadItems(self.stock.getStock())
 
         self.stockWindow.show()
-    
+
+
     # Writes all the data in the table
     def loadItems(self, stock):
-
         self.stockWindow.tableStock.setRowCount(0)
         self.setTableHeader()
 
@@ -59,6 +64,7 @@ class StockUi(QtWidgets.QMainWindow):
                 index, 10, QtWidgets.QTableWidgetItem(str(item[8])))  # Stock
 
         self.stockWindow.tableStock.viewport().installEventFilter(self)  # Event listener
+        
 
     # Sets the headers of the table
     def setTableHeader(self):
@@ -98,11 +104,19 @@ class StockUi(QtWidgets.QMainWindow):
         self.filterButton()
 
     # Fills the row of a color from the row given
-    def fillSelectedRowColor(self, row):
+    def fillSelectedRowColor(self, earse = False):
+        if self.selectedId == None:
+            return
+        if earse == True:
+            for i in range(11):
+                self.stockWindow.tableStock.item(self.selectedRow, i).setBackground(QtGui.QColor(255,255,255))
+            return
         for i in range(11):
-            self.stockWindow.tableStock.item(row, i).setBackground(QtGui.QColor(51,120,210))
+            self.stockWindow.tableStock.item(self.selectedRow, i).setBackground(QtGui.QColor(51,120,210))
 
-
+    def singleClickCell(self):
+        self.fillSelectedRowColor(True)
+    
     # If the user double clicks on a cell in the table, get the row and the id of the item, then open the
     # second window and pass the id to it.
 
@@ -114,11 +128,11 @@ class StockUi(QtWidgets.QMainWindow):
         global windowNeedsUpdate
         if self.stockWindow.tableStock.selectedIndexes() != []:  # Checks that the user clicked on a cell
             if event.type() == QtCore.QEvent.MouseButtonDblClick:  # If user double clicked
-                row = self.stockWindow.tableStock.currentRow()  # gets row clicked
-                id = self.stockWindow.tableStock.item(row, 0).text()  # gets id based on click
-                self.fillSelectedRowColor(row)
+                self.selectedRow = self.stockWindow.tableStock.currentRow()  # gets row clicked
+                self.selectedId = self.stockWindow.tableStock.item(self.selectedRow, 0).text()  # gets id based on click
+                self.fillSelectedRowColor(self.selectedRow)
                 self.detailledUi = ItemDetailsUi()  # Prepare the second window
-                self.detailledUi.setupUi(id)
+                self.detailledUi.setupUi(self.selectedId)
 
         # Checks that it's a keypress and from a QTextEdit event
         if event.type() == QtCore.QEvent.KeyPress and object.hasSelectedText() == QtWidgets.QLineEdit(self).hasSelectedText():
@@ -127,18 +141,25 @@ class StockUi(QtWidgets.QMainWindow):
 
         if windowNeedsUpdate == True:
             self.loadItems(self.stock.getStock())
+            print
+            self.fillSelectedRowColor(self.selectedId)
             windowNeedsUpdate = False
+            
         return False
     
     def event(self,event):
         if event.type() == QtCore.QEvent.KeyPress:
             if event.key() == QtCore.Qt.Key_Return:
                 if self.stockWindow.tableStock.selectedIndexes():
-                    row = self.stockWindow.tableStock.currentRow()  # gets row clicked
-                    id = self.stockWindow.tableStock.item(row, 0).text()  # gets id based on click
+                    self.selectedRow = self.stockWindow.tableStock.currentRow()  # gets row clicked
+                    id = self.stockWindow.tableStock.item(self.selectedRow, 0).text()  # gets id based on click
 
                     self.detailledUi = ItemDetailsUi()  # Prepare the second window
                     self.detailledUi.setupUi(id)
+
+                # Shows "Type" content if it has focus and enter key is pressed
+                if self.stockWindow.comboBoxEtat.hasFocus():
+                    self.stockWindow.comboBoxEtat.showPopup()
         return super().event(event)
 
 
@@ -167,8 +188,6 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
         self.itemDetailWindow.btnContracts.clicked.connect(self.contractsButton)
         self.itemDetailWindow.btnEdit.clicked.connect(self.editButton)
         self.itemDetailWindow.btnValider.clicked.connect(self.validateButton)
-        self.itemDetailWindow.radioUnique.clicked.connect(self.radioButtonChecked)
-        self.itemDetailWindow.radioMultiple.clicked.connect(self.radioButtonChecked)
 
         # Setting the text of the labels
         self.itemDetailWindow.textCodeArticle.setText(str(self.item.itemNb))
@@ -180,6 +199,15 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
         self.itemDetailWindow.textStock.setText(str(self.item.stock))
         self.itemDetailWindow.textTaille.setText(str(self.item.size))
         self.itemDetailWindow.lblnbContracts.setText(str(numberOfContracts))
+
+
+        isUnique = self.item.checkIfItemIsUnique()
+        self.item.setItem({"unique" : isUnique})
+
+        if self.item.unique:
+            self.itemDetailWindow.lblTypeStock.setText(self.itemDetailWindow.lblTypeStock.text() + " unique")
+        else:
+            self.itemDetailWindow.lblTypeStock.setText(self.itemDetailWindow.lblTypeStock.text() + " multiple")
 
         # Accepts number only
         self.itemDetailWindow.textTaille.setValidator(QtGui.QIntValidator())
@@ -199,20 +227,32 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
         self.comboBoxType.setEnabled(False)
         self.comboBoxType.setGeometry(540, 90, 131, 20)
         self.comboBoxType.setCurrentIndex(self.item.type - 1)
+        self.comboBoxType.currentIndexChanged.connect(self.typeIndexChanged)
         self.comboBoxType.show()
-
+        
+        self.setupTabOrder()
         self.setAllFieldsToEditable(False)
 
-
-        # Checks the right RadioBox
-        if int(self.itemDetailWindow.textStock.text()) <= 1:
-            self.itemDetailWindow.radioUnique.setChecked(True)
-            self.radioButtonChecked()
-        else:
-            self.itemDetailWindow.radioMultiple.setChecked(True)
-            self.radioButtonChecked()
-
         self.itemDetailWindow.show()
+
+    def setupTabOrder(self):
+        # Setting the tab order
+        tabOrder = [ self.itemDetailWindow.textMarque, self.itemDetailWindow.textModel, 
+        self.comboBoxType, self.itemDetailWindow.comboBoxEtat, self.itemDetailWindow.textTaille, self.itemDetailWindow.textPrixAchat,
+        self.itemDetailWindow.textRevenusGeneres, self.itemDetailWindow.textStock, self.itemDetailWindow.btnContracts, self.itemDetailWindow.btnEdit,
+        self.itemDetailWindow.btnValider, self.itemDetailWindow.textCodeArticle]
+
+        self.setTabOrder(tabOrder[0], tabOrder[1])
+        self.setTabOrder(tabOrder[1], tabOrder[2])
+        self.setTabOrder(tabOrder[2], tabOrder[3])
+        self.setTabOrder(tabOrder[3], tabOrder[4])
+        self.setTabOrder(tabOrder[4], tabOrder[5])
+        self.setTabOrder(tabOrder[5], tabOrder[6])
+        self.setTabOrder(tabOrder[6], tabOrder[7])
+        self.setTabOrder(tabOrder[7], tabOrder[8])
+        self.setTabOrder(tabOrder[8], tabOrder[9])
+        self.setTabOrder(tabOrder[9], tabOrder[10])
+        self.setTabOrder(tabOrder[10], tabOrder[11])
 
     # When contracts button clicked, open contracts UI
     def contractsButton(self):
@@ -238,8 +278,6 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
     # if bool is False, all fields are not editabled
     def setAllFieldsToEditable(self, bool):
         self.itemDetailWindow.textPrixAchat.setReadOnly(not bool)
-        self.itemDetailWindow.radioUnique.setEnabled(bool)
-        self.itemDetailWindow.radioMultiple.setEnabled(bool)
         self.itemDetailWindow.textMarque.setReadOnly(not bool)
         self.itemDetailWindow.textModel.setReadOnly(not bool)
         self.itemDetailWindow.textTaille.setReadOnly(not bool)
@@ -249,8 +287,6 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
         self.comboBoxType.setEnabled(bool)
 
     def checkFields(self):
-        newStock = self.itemDetailWindow.textStock.text()
-
         #Empty checks
         if not self.itemDetailWindow.textMarque.text():
             return {"error": True, "errorMessage": "Le champ 'Marque' est obligatoire"}
@@ -258,11 +294,17 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
         if not self.itemDetailWindow.textTaille.text():
             return {"error": True, "errorMessage": "Le champ 'Taille' est obligatoire"}
 
-        if not self.itemDetailWindow.textStock.text() and self.addItemWindow.radioMultiple.isChecked() == True:
+        if not self.itemDetailWindow.textStock.text():
             return {"error": True, "errorMessage": "Le champ 'Nombre' est obligatoire"}
 
         if not self.itemDetailWindow.textPrixAchat.text():
             self.addItemWindow.textPrix.setText("0")
+
+        if int(self.itemDetailWindow.textPrixAchat.text()) < 0 or int(self.itemDetailWindow.textTaille.text()) < 0 or int(self.itemDetailWindow.textStock.text()) < 0:
+            return{"error" : True, "errorMessage": "Les champs ne peuvent pas être négatifs"}
+        # Stock can only be 0 or 1 when its unique
+        if int(self.itemDetailWindow.textStock.text()) > 1 and self.item.unique == True:
+            return{"error": True, "errorMessage": "Le champ 'Nombre doit être 1 ou 0'"}
 
         return {"error" : False}
 
@@ -286,12 +328,17 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
         self.itemDetailWindow.textErrorMessage.setStyleSheet(
             "color: red; border:none;")
         self.itemDetailWindow.textErrorMessage.setText(error)
-    
-    def radioButtonChecked(self):
-        if self.itemDetailWindow.radioUnique.isChecked():
-            self.itemDetailWindow.textStock.hide()
-        if self.itemDetailWindow.radioMultiple.isChecked():
-            self.itemDetailWindow.textStock.setVisible(True)
+
+    def typeIndexChanged(self):
+        index = self.comboBoxType.currentIndex()
+        self.item.setItem({"type" : index + 1})
+        self.item.setItem({"unique" : self.item.checkIfItemIsUnique()})
+
+        print()
+        if self.item.unique:
+            self.itemDetailWindow.lblTypeStock.setText("Type stock unique")
+        else:
+            self.itemDetailWindow.lblTypeStock.setText("Type stock multiple")
 
     def event(self, event):
         if event.type() == QtCore.QEvent.KeyPress:
@@ -453,7 +500,7 @@ class AddItemsUI(QtWidgets.QMainWindow):
         else:
             self.addItemWindow.textErrorMessage.setStyleSheet(
                 "color: green; border:none;")
-            self.addItemWindow.textErrorMessage.setText("Contrat ajouté")
+            self.addItemWindow.textErrorMessage.setText("Article ajouté")
             self.addItemWindow.textCodeArticle.setText("")
             windowNeedsUpdate = True
 

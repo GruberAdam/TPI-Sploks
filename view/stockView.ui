@@ -227,13 +227,13 @@
   </widget>
  </widget>
  <tabstops>
+  <tabstop>tableStock</tabstop>
   <tabstop>textBrand</tabstop>
   <tabstop>textModel</tabstop>
   <tabstop>textSerialNumber</tabstop>
   <tabstop>comboBoxEtat</tabstop>
   <tabstop>btnFiltrer</tabstop>
   <tabstop>btnAdd</tabstop>
-  <tabstop>tableStock</tabstop>
  </tabstops>
  <resources/>
  <connections/>

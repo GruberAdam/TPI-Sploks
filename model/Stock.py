@@ -62,6 +62,7 @@ class Item(Stock):
             self.stock = self.item[0][8]
             self.articleNumber = self.item[0][9]
             self.type = self.item[0][10]
+            self.unique = None
 
     # It gets an item from the database by its id
     #:param id: The id of the item you want to get
@@ -122,6 +123,8 @@ class Item(Stock):
                 self.stock = property
             if key == "size":
                 self.size = property
+            if key == "unique":
+                self.unique = property
 
     # Insert the values of the dictionary into the database
     #:param item: a dictionary containing the following keys:
@@ -178,3 +181,14 @@ class Item(Stock):
             return {"error" : False}
         else:
             return{"error" : True, "errorMessage" : "Le code article entré n'est pas unique"}
+    # If this function returns True, it means the item is unique
+    # Otherwise if it returns False, it means the item is multiple
+    def checkIfItemIsUnique(self):
+        query = f"SELECT sploks.geartypes.uniqueitem from sploks.geartypes WHERE sploks.geartypes.id = {self.type}"
+        connection = connectToDatabase(self)
+        res = executeQuery(self, connection, query)
+        
+        if res[0][0] == 1:
+            return True
+        else:
+            return False
