@@ -5,6 +5,7 @@ from model.Stock import *
 from PyQt5.QtWidgets import QComboBox
 
 windowNeedsUpdate = False
+creatingItem = False
 
 # It loads the stockView.ui file, and then loads the stock table.
 class StockUi(QtWidgets.QMainWindow):
@@ -147,6 +148,7 @@ class StockUi(QtWidgets.QMainWindow):
     # True. If the event should be propagated further, the function should return False.
     def eventFilter(self, object, event):
         global windowNeedsUpdate
+        global creatingItem
         if self.stockWindow.tableStock.selectedIndexes() != []:  # Checks that the user clicked on a cell
             if event.type() == QtCore.QEvent.MouseButtonDblClick:  # If user double clicked
                 self.selectedRow = self.stockWindow.tableStock.currentRow()  # gets row clicked
@@ -160,11 +162,16 @@ class StockUi(QtWidgets.QMainWindow):
             if event.key() == QtCore.Qt.Key_Return:
                 self.filterButton()
 
+        # Updates the window when the variable windowNeedsUpdate is True
         if windowNeedsUpdate == True:
-            self.itemToUpdate = Item(self.selectedId)
-            self.updateItems(self.selectedRow, self.itemToUpdate)
-            self.fillSelectedRowColor()
+            if creatingItem == True:
+                self.loadItems(self.stock.getStock())
+            else:
+                self.itemToUpdate = Item(self.selectedId)
+                self.updateItems(self.selectedRow, self.itemToUpdate)
+                self.fillSelectedRowColor()
             windowNeedsUpdate = False
+            creatingItem = False
             
         return False
     
@@ -224,7 +231,7 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
         self.itemDetailWindow.lblnbContracts.setText(str(numberOfContracts))
 
 
-        isUnique = self.item.checkIfItemIsUnique()
+        isUnique = self.item.checkIfItemIsUnique(self.item.type)
         self.item.setItem({"unique" : isUnique})
 
         if self.item.unique:
@@ -355,7 +362,7 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
     def typeIndexChanged(self):
         index = self.comboBoxType.currentIndex()
         self.item.setItem({"type" : index + 1})
-        self.item.setItem({"unique" : self.item.checkIfItemIsUnique()})
+        self.item.setItem({"unique" : self.item.checkIfItemIsUnique(self.item.type)})
 
         if self.item.unique:
             self.itemDetailWindow.lblTypeStock.setText("Stock (unique)")
@@ -383,8 +390,8 @@ class AddItemsUI(QtWidgets.QMainWindow):
         self.addItemWindow = uic.loadUi("view/addItemsView.ui", self)
         self.setupUi()
         self.addItemWindow.show()
-
-    def closeEvent(self,event):
+    
+    def closeEvent(self, event):
         self.buttonValidate()
 
     # Sets up the UI
@@ -396,17 +403,19 @@ class AddItemsUI(QtWidgets.QMainWindow):
         #Event listener to all buttons
         self.addItemWindow.btnValider.clicked.connect(self.buttonValidate)
         self.addItemWindow.btnEncore.clicked.connect(self.buttonAdd)
-        self.addItemWindow.radioUnique.clicked.connect(self.radioButtonChecked)
-        self.addItemWindow.radioMultiple.clicked.connect(self.radioButtonChecked)
+        
 
         # Accepts number only
         self.addItemWindow.textTaille.setValidator(QtGui.QIntValidator())
         self.addItemWindow.textPrix.setValidator(QtGui.QIntValidator())
         self.addItemWindow.textStock.setValidator(QtGui.QIntValidator())
-        
-        # Hides text behind both radioBoxes
-        #self.addItemWindow.textNumeroSerie.hide()
-        self.addItemWindow.textStock.hide()
+
+        # Hide type choice
+        self.addItemWindow.textTypeChoix.hide()
+
+        # Disable both radioBoxes
+        self.addItemWindow.radioUnique.setEnabled(False)
+        self.addItemWindow.radioMultiple.setEnabled(False)
 
         # Setting the tab order
         tabOrder = [self.addItemWindow.textCodeArticle, self.addItemWindow.textMarque, self.addItemWindow.textModel, 
@@ -431,16 +440,37 @@ class AddItemsUI(QtWidgets.QMainWindow):
         self.comboBoxType = QComboBox(self)
 
         self.gearTypes = self.item.getAllGearTypes()
-        stringArray = ["Choix"]
+        stringArray = ["Choix", "Nouveau"]
 
         for gearType in self.gearTypes:
             stringArray.append(gearType[0])
 
         self.comboBoxType.addItems(stringArray)
+        self.comboBoxType.activated.connect(self.comboBoxTypeChanged)
 
-        self.comboBoxType.setGeometry(530, 100, 113, 20)
+        self.comboBoxType.setGeometry(480, 100, 113, 20)
 
         self.comboBoxType.show()
+    
+    def comboBoxTypeChanged(self):
+        if self.comboBoxType.currentIndex() == 1:
+            # Name field visible 
+            self.addItemWindow.textTypeChoix.setVisible(True)
+            # Enables radioBoxes
+            self.addItemWindow.radioUnique.setEnabled(True)
+            self.addItemWindow.radioMultiple.setEnabled(True)
+        if self.comboBoxType.currentIndex() > 1:
+            # Name field not visible anymore
+            self.addItemWindow.textTypeChoix.setVisible(False)
+            # Disables radioBoxes
+            self.addItemWindow.radioUnique.setEnabled(False)
+            self.addItemWindow.radioMultiple.setEnabled(False)
+            self.currentTypeIndex = self.comboBoxType.currentIndex() - 1
+            isUnique = Item.checkIfItemIsUnique(self, self.currentTypeIndex)
+            if isUnique:
+                self.addItemWindow.radioUnique.setChecked(True)
+            else:
+                self.addItemWindow.radioMultiple.setChecked(True)
 
     # It returns a dictionary with the values of the fields of the add form.
     #:return: A dictionary with the values of the fields in the addItemWindow.
@@ -497,23 +527,30 @@ class AddItemsUI(QtWidgets.QMainWindow):
 
     # Leaves the window and updates it in the list of the items
     def buttonValidate(self):
-        global windowNeedsUpdate
         self.addItemWindow.textErrorMessage.setText("")
         self.addItemWindow.close()
-        windowNeedsUpdate = True
 
     # When the button "Encore" is clicked
     # Creates a new item with the fields inputed
 
     def buttonAdd(self):
         global windowNeedsUpdate
+        global creatingItem
+
+        if self.comboBoxType.currentIndex() == 1:
+            if self.addItemWindow.radioUnique.isChecked() == True:
+                isUnique = 1
+            else:
+                isUnique = 0
+            self.item.createType(self.addItemWindow.textTypeChoix.text(), isUnique)
+
         itemToAdd = self.getCreatedItem()
         if itemToAdd['error'] == True:
             self.displayErrorMessage(itemToAdd['errorMessage'])
             return
         
 
-        result = self.item.setItem(itemToAdd)
+        self.item.setItem(itemToAdd)
 
         result = self.item.addItem()
 
@@ -525,13 +562,7 @@ class AddItemsUI(QtWidgets.QMainWindow):
             self.addItemWindow.textErrorMessage.setText("Article ajouté")
             self.addItemWindow.textCodeArticle.setText("")
             windowNeedsUpdate = True
-
-    # Displays the right widget according to the radioBox clicked
-    def radioButtonChecked(self):
-        if self.addItemWindow.radioUnique.isChecked():
-            self.addItemWindow.textStock.hide()
-        if self.addItemWindow.radioMultiple.isChecked():
-            self.addItemWindow.textStock.setVisible(True)
+            creatingItem = True
 
     # Displays in a label the error given
     def displayErrorMessage(self, error):
@@ -553,11 +584,15 @@ class AddItemsUI(QtWidgets.QMainWindow):
         if not self.addItemWindow.textTaille.text():
             return {"error": True, "errorMessage": "Le champ 'Taille' est obligatoire"}
 
-        if not self.addItemWindow.textStock.text() and self.addItemWindow.radioMultiple.isChecked() == True:
+        if not self.addItemWindow.textStock.text():
             return {"error": True, "errorMessage": "Le champ 'Nombre' est obligatoire"}
 
         if not self.addItemWindow.textPrix.text():
             self.addItemWindow.textPrix.setText("0")
+
+        # Negative number checks
+        if int(self.addItemWindow.textPrix.text()) < 0 or int(self.addItemWindow.textTaille.text()) < 0 or int(self.addItemWindow.textStock.text()) < 0:
+            return {"error": True, "errorMessage": "Les champs ne peuvent pas être négatifs"}
 
         # Radio button check
         if self.addItemWindow.radioMultiple.isChecked() == False and self.addItemWindow.radioUnique.isChecked() == False:

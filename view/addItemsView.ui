@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>742</width>
-    <height>300</height>
+    <height>305</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -75,7 +75,7 @@ height: 40px
    <widget class="QWidget" name="verticalLayoutWidget_3">
     <property name="geometry">
      <rect>
-      <x>400</x>
+      <x>350</x>
       <y>20</y>
       <width>121</width>
       <height>141</height>
@@ -150,7 +150,7 @@ height: 40px
    <widget class="QLineEdit" name="textTaille">
     <property name="geometry">
      <rect>
-      <x>530</x>
+      <x>480</x>
       <y>140</y>
       <width>113</width>
       <height>20</height>
@@ -163,7 +163,7 @@ height: 40px
    <widget class="QLineEdit" name="textMarque">
     <property name="geometry">
      <rect>
-      <x>530</x>
+      <x>480</x>
       <y>30</y>
       <width>113</width>
       <height>20</height>
@@ -173,7 +173,7 @@ height: 40px
    <widget class="QLineEdit" name="textModel">
     <property name="geometry">
      <rect>
-      <x>530</x>
+      <x>480</x>
       <y>60</y>
       <width>113</width>
       <height>20</height>
@@ -252,8 +252,8 @@ height: 40px
    <widget class="QLineEdit" name="textErrorMessage">
     <property name="geometry">
      <rect>
-      <x>60</x>
-      <y>240</y>
+      <x>20</x>
+      <y>250</y>
       <width>321</width>
       <height>31</height>
      </rect>
@@ -284,7 +284,7 @@ color: red;</string>
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>160</y>
+      <y>150</y>
       <width>82</width>
       <height>17</height>
      </rect>
@@ -297,7 +297,7 @@ color: red;</string>
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>180</y>
+      <y>170</y>
       <width>82</width>
       <height>17</height>
      </rect>
@@ -305,12 +305,15 @@ color: red;</string>
     <property name="text">
      <string>Multiple</string>
     </property>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
    </widget>
    <widget class="QLineEdit" name="textStock">
     <property name="geometry">
      <rect>
       <x>230</x>
-      <y>180</y>
+      <y>160</y>
       <width>113</width>
       <height>20</height>
      </rect>
@@ -320,6 +323,19 @@ color: red;</string>
     </property>
     <property name="placeholderText">
      <string>Nombre</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="textTypeChoix">
+    <property name="geometry">
+     <rect>
+      <x>610</x>
+      <y>100</y>
+      <width>113</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="placeholderText">
+     <string>Entrez le nom </string>
     </property>
    </widget>
   </widget>
