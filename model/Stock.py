@@ -73,7 +73,6 @@ class Item(Stock):
         # Opens a connection with the database
         connection = connectToDatabase(self)
         item = executeQuery(self, connection, query)
-
         return item
 
     # It returns the number of contracts that have been made for a specific item

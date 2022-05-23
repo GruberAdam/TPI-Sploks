@@ -13,6 +13,8 @@ class StockUi(QtWidgets.QMainWindow):
         self.stock = Stock()
         self.stockWindow = uic.loadUi("view/stockView.ui", self)
         self.selectedId = None
+        self.selectedRow = None
+        self.changedStockContent = False
 
         # Event listener
         self.stockWindow.textBrand.installEventFilter(self)
@@ -34,14 +36,13 @@ class StockUi(QtWidgets.QMainWindow):
     def loadItems(self, stock):
         self.stockWindow.tableStock.setRowCount(0)
         self.setTableHeader()
-
         self.stockWindow.tableStock.verticalHeader().setVisible(False)  # Hides the row number
         for index, item in enumerate(stock):
 
             self.stockWindow.tableStock.insertRow(index)
             # Inserting the data into the table.
             self.stockWindow.tableStock.setItem(
-                index, 0, QtWidgets.QTableWidgetItem(str(item[0])))  # Code
+                index, 0, QtWidgets.QTableWidgetItem(str(item[0])))  # ID
             self.stockWindow.tableStock.setItem(
                 index, 1, QtWidgets.QTableWidgetItem(str(item[1])))  # Code
             self.stockWindow.tableStock.setItem(
@@ -64,7 +65,31 @@ class StockUi(QtWidgets.QMainWindow):
                 index, 10, QtWidgets.QTableWidgetItem(str(item[8])))  # Stock
 
         self.stockWindow.tableStock.viewport().installEventFilter(self)  # Event listener
-        
+    
+    def updateItems(self, row, item):
+        # Inserting the data into the table.
+        self.stockWindow.tableStock.setItem(
+            row, 0, QtWidgets.QTableWidgetItem(str(item.id)))  # ID
+        self.stockWindow.tableStock.setItem(
+            row, 1, QtWidgets.QTableWidgetItem(str(item.itemNb)))  # Code
+        self.stockWindow.tableStock.setItem(
+            row, 2, QtWidgets.QTableWidgetItem(str(item.brand)))  # Marque
+        self.stockWindow.tableStock.setItem(
+            row, 3, QtWidgets.QTableWidgetItem(str(item.model)))  # Modèle
+        self.stockWindow.tableStock.setItem(
+            row, 4, QtWidgets.QTableWidgetItem(str(item.articleNumber)))  # S/N
+        self.stockWindow.tableStock.setItem(
+            row, 5, QtWidgets.QTableWidgetItem(str(item.size)))  # Taille
+        self.stockWindow.tableStock.setItem(
+            row, 6, QtWidgets.QTableWidgetItem(str(item.getStateDescriptionFromId(item.state))))  # Etat
+        self.stockWindow.tableStock.setItem(
+            row, 7, QtWidgets.QTableWidgetItem(str(item.cost)))  # Coût
+        self.stockWindow.tableStock.setItem(
+            row, 8, QtWidgets.QTableWidgetItem(str(item.returned)))  # Retour
+        self.stockWindow.tableStock.setItem(
+            row, 9, QtWidgets.QTableWidgetItem(str(item.type)))  # Type
+        self.stockWindow.tableStock.setItem(
+            row, 10, QtWidgets.QTableWidgetItem(str(item.stock)))  # Stock
 
     # Sets the headers of the table
     def setTableHeader(self):
@@ -73,13 +98,6 @@ class StockUi(QtWidgets.QMainWindow):
         for index, header in enumerate(headerNames):
             self.stockWindow.tableStock.setHorizontalHeaderItem(
                 index, QtWidgets.QTableWidgetItem(str(header)))
-
-    # Resets the text in the filters in the stock window.
-
-    def resetTextEdits(self):
-        self.stockWindow.textBrand.setText("")
-        self.stockWindow.textModel.setText("")
-        self.stockWindow.textSerialNumber.setText("")
 
     # It filters the stock table based on the user input.
 
@@ -92,10 +110,8 @@ class StockUi(QtWidgets.QMainWindow):
 
         self.loadItems(self.filteredStock)  # Loads table with filter
 
-        self.stockWindow.tableStock.verticalScrollBar().setValue(
-            0)  # Goes back to the top of the filter
-
-        self.resetTextEdits()
+        self.stockWindow.tableStock.verticalScrollBar().setValue(0)  # Goes back to the top of the filter
+        self.changedStockContent = True
 
     def addButton(self):
         self.addItemsUi = AddItemsUI()
@@ -107,15 +123,20 @@ class StockUi(QtWidgets.QMainWindow):
     def fillSelectedRowColor(self, earse = False):
         if self.selectedId == None:
             return
-        if earse == True:
+        if earse == True and self.changedStockContent == False:
             for i in range(11):
                 self.stockWindow.tableStock.item(self.selectedRow, i).setBackground(QtGui.QColor(255,255,255))
+            self.changedStockContent = False
             return
+
         for i in range(11):
             self.stockWindow.tableStock.item(self.selectedRow, i).setBackground(QtGui.QColor(51,120,210))
+        self.changedStockContent = False
+        return
 
     def singleClickCell(self):
-        self.fillSelectedRowColor(True)
+        if self.changedStockContent == False:
+            self.fillSelectedRowColor(True)
     
     # If the user double clicks on a cell in the table, get the row and the id of the item, then open the
     # second window and pass the id to it.
@@ -130,7 +151,7 @@ class StockUi(QtWidgets.QMainWindow):
             if event.type() == QtCore.QEvent.MouseButtonDblClick:  # If user double clicked
                 self.selectedRow = self.stockWindow.tableStock.currentRow()  # gets row clicked
                 self.selectedId = self.stockWindow.tableStock.item(self.selectedRow, 0).text()  # gets id based on click
-                self.fillSelectedRowColor(self.selectedRow)
+                self.fillSelectedRowColor()
                 self.detailledUi = ItemDetailsUi()  # Prepare the second window
                 self.detailledUi.setupUi(self.selectedId)
 
@@ -140,9 +161,9 @@ class StockUi(QtWidgets.QMainWindow):
                 self.filterButton()
 
         if windowNeedsUpdate == True:
-            self.loadItems(self.stock.getStock())
-            print
-            self.fillSelectedRowColor(self.selectedId)
+            self.itemToUpdate = Item(self.selectedId)
+            self.updateItems(self.selectedRow, self.itemToUpdate)
+            self.fillSelectedRowColor()
             windowNeedsUpdate = False
             
         return False
@@ -151,11 +172,13 @@ class StockUi(QtWidgets.QMainWindow):
         if event.type() == QtCore.QEvent.KeyPress:
             if event.key() == QtCore.Qt.Key_Return:
                 if self.stockWindow.tableStock.selectedIndexes():
+                    self.fillSelectedRowColor(True)
+                    # Opens Detailed UI
                     self.selectedRow = self.stockWindow.tableStock.currentRow()  # gets row clicked
-                    id = self.stockWindow.tableStock.item(self.selectedRow, 0).text()  # gets id based on click
+                    self.selectedId = self.stockWindow.tableStock.item(self.selectedRow, 0).text()  # gets id based on click
 
                     self.detailledUi = ItemDetailsUi()  # Prepare the second window
-                    self.detailledUi.setupUi(id)
+                    self.detailledUi.setupUi(self.selectedId)
 
                 # Shows "Type" content if it has focus and enter key is pressed
                 if self.stockWindow.comboBoxEtat.hasFocus():
@@ -334,7 +357,6 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
         self.item.setItem({"type" : index + 1})
         self.item.setItem({"unique" : self.item.checkIfItemIsUnique()})
 
-        print()
         if self.item.unique:
             self.itemDetailWindow.lblTypeStock.setText("Type stock unique")
         else:
