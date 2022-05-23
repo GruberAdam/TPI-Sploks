@@ -228,9 +228,9 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
         self.item.setItem({"unique" : isUnique})
 
         if self.item.unique:
-            self.itemDetailWindow.lblTypeStock.setText(self.itemDetailWindow.lblTypeStock.text() + " unique")
+            self.itemDetailWindow.lblTypeStock.setText(self.itemDetailWindow.lblTypeStock.text() + " (unique)")
         else:
-            self.itemDetailWindow.lblTypeStock.setText(self.itemDetailWindow.lblTypeStock.text() + " multiple")
+            self.itemDetailWindow.lblTypeStock.setText(self.itemDetailWindow.lblTypeStock.text() + " (multiple)")
 
         # Accepts number only
         self.itemDetailWindow.textTaille.setValidator(QtGui.QIntValidator())
@@ -358,9 +358,9 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
         self.item.setItem({"unique" : self.item.checkIfItemIsUnique()})
 
         if self.item.unique:
-            self.itemDetailWindow.lblTypeStock.setText("Type stock unique")
+            self.itemDetailWindow.lblTypeStock.setText("Stock (unique)")
         else:
-            self.itemDetailWindow.lblTypeStock.setText("Type stock multiple")
+            self.itemDetailWindow.lblTypeStock.setText("Stock (multiple)")
 
     def event(self, event):
         if event.type() == QtCore.QEvent.KeyPress:
