@@ -62,6 +62,7 @@ class Item(Stock):
             self.stock = self.item[0][8]
             self.articleNumber = self.item[0][9]
             self.type = self.item[0][10]
+            self.unique = None
 
     # It gets an item from the database by its id
     #:param id: The id of the item you want to get
@@ -122,12 +123,14 @@ class Item(Stock):
                 self.stock = property
             if key == "size":
                 self.size = property
+            if key == "unique":
+                self.unique = property
 
     # Insert the values of the dictionary into the database
     #:param item: a dictionary containing the following keys:
     #:return: The result of the query
     def addItem(self):
-        query = f"INSERT INTO sploks.items (itemnb, brand, model, size, gearstate_id, cost, returned, stock, articlenumber, geartype_id) VALUES ('{self.itemNb}', '{self.brand}', '{self.model}', '{self.size}','{self.state}', '{self.cost}', '{0}', '{self.stock}', '{self.articleNumber}', '{self.type}')"
+        query = f"INSERT INTO sploks.items (itemnb, brand, model, size, gearstate_id, cost, returned, stock, articlenumber, geartype_id) VALUES ('{self.itemNb}', '{self.brand}', '{self.model}', '{self.size}','{self.state}', '{self.cost}', '{0}', '{self.stock}', 'SUPPRIME', '{self.type}')"
         connection = connectToDatabase(self)
         res = executeQuery(self, connection, query)
         return {"error": False, "res": res}
@@ -167,3 +170,25 @@ class Item(Stock):
         res = executeQuery(self, connection, query)
 
         return res[0][0]
+
+    # Checks from the string given, if another articleNumber exists
+    def checkitemNumber(self, string):
+        query = f"SELECT sploks.items.itemnb FROM sploks.items WHERE itemnb = '{string}'"
+        connection = connectToDatabase(self)
+        res = executeQuery(self, connection, query)
+
+        if not res:
+            return {"error" : False}
+        else:
+            return{"error" : True, "errorMessage" : "Le code article entré n'est pas unique"}
+    # If this function returns True, it means the item is unique
+    # Otherwise if it returns False, it means the item is multiple
+    def checkIfItemIsUnique(self):
+        query = f"SELECT sploks.geartypes.uniqueitem from sploks.geartypes WHERE sploks.geartypes.id = {self.type}"
+        connection = connectToDatabase(self)
+        res = executeQuery(self, connection, query)
+        
+        if res[0][0] == 1:
+            return True
+        else:
+            return False
