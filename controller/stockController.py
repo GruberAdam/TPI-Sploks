@@ -475,11 +475,22 @@ class AddItemsUI(QtWidgets.QMainWindow):
     # It returns a dictionary with the values of the fields of the add form.
     #:return: A dictionary with the values of the fields in the addItemWindow.
     def getCreatedItem(self):
+        
         res = self.checkRequiredFields()
+
         if res['error'] == True:
             return res
+        
+        # If the user selected on the "Nouveau" type
+        if self.comboBoxType.currentIndex() == 1:
+            if self.addItemWindow.radioUnique.isChecked() == True:
+                isUnique = 1
+            else:
+                isUnique = 0
 
-        if self.addItemWindow.radioMultiple.isChecked():  # If mlultiple articles are added
+            self.item.createType(self.addItemWindow.textTypeChoix.text(), isUnique)
+            self.comboBoxType.addItems([self.addItemWindow.textTypeChoix.text()])
+
             itemToAdd = {
                 "error": False,
                 "itemNumber": self.addItemWindow.textCodeArticle.text(),
@@ -487,7 +498,7 @@ class AddItemsUI(QtWidgets.QMainWindow):
                 "price": self.addItemWindow.textPrix.text(),
                 "brand": self.addItemWindow.textMarque.text(),
                 "model": self.addItemWindow.textModel.text(),
-                "type": self.item.getTypeIdFromName(self.comboBoxType.currentText()),
+                "type": self.item.getTypeIdFromName(self.addItemWindow.textTypeChoix.text()),
                 "stock": self.addItemWindow.textStock.text(),
                 "size": self.addItemWindow.textTaille.text(),
             }
@@ -500,30 +511,27 @@ class AddItemsUI(QtWidgets.QMainWindow):
                     return {"error" : True, "errorMessage" : itemToAdd['state']['errorMessage']}
             except:
                 return itemToAdd
-            
+        
+        itemToAdd = {
+            "error": False,
+            "itemNumber": self.addItemWindow.textCodeArticle.text(),
+            "state": self.item.getStateIdFromDescription(self.addItemWindow.comboBoxEtat.currentText()),
+            "price": self.addItemWindow.textPrix.text(),
+            "brand": self.addItemWindow.textMarque.text(),
+            "model": self.addItemWindow.textModel.text(),
+            "type": self.item.getTypeIdFromName(self.comboBoxType.currentText()),
+            "stock": self.addItemWindow.textStock.text(),
+            "size": self.addItemWindow.textTaille.text(),
+        }
 
-        if self.addItemWindow.radioUnique.isChecked():  # If a unique article is added
-            itemToAdd = {
-                "error": False,
-                "itemNumber": self.addItemWindow.textCodeArticle.text(),
-                "state": self.item.getStateIdFromDescription(self.addItemWindow.comboBoxEtat.currentText()),
-                "price": self.addItemWindow.textPrix.text(),
-                "brand": self.addItemWindow.textMarque.text(),
-                "model": self.addItemWindow.textModel.text(),
-                "type": self.item.getTypeIdFromName(self.comboBoxType.currentText()),
-                "stock": "1",
-                "size": self.addItemWindow.textTaille.text(),
-            }
+        try:
+            if itemToAdd['type']['error']:
+                return {"error" : True, "errorMessage" : itemToAdd['type']['errorMessage']}
 
-            try:
-                if itemToAdd['type']['error']:
-                    return {"error" : True, "errorMessage" : itemToAdd['type']['errorMessage']}
-
-                if itemToAdd['state']['error']:
-                    return {"error" : True, "errorMessage" : itemToAdd['state']['errorMessage']}
-            except:
-                return itemToAdd
-
+            if itemToAdd['state']['error']:
+                return {"error" : True, "errorMessage" : itemToAdd['state']['errorMessage']}
+        except:
+            return itemToAdd
 
     # Leaves the window and updates it in the list of the items
     def buttonValidate(self):
@@ -536,13 +544,6 @@ class AddItemsUI(QtWidgets.QMainWindow):
     def buttonAdd(self):
         global windowNeedsUpdate
         global creatingItem
-
-        if self.comboBoxType.currentIndex() == 1:
-            if self.addItemWindow.radioUnique.isChecked() == True:
-                isUnique = 1
-            else:
-                isUnique = 0
-            self.item.createType(self.addItemWindow.textTypeChoix.text(), isUnique)
 
         itemToAdd = self.getCreatedItem()
         if itemToAdd['error'] == True:
@@ -586,6 +587,9 @@ class AddItemsUI(QtWidgets.QMainWindow):
 
         if not self.addItemWindow.textStock.text():
             return {"error": True, "errorMessage": "Le champ 'Nombre' est obligatoire"}
+        
+        if not self.addItemWindow.textTypeChoix.text() and self.comboBoxType.currentIndex() == 1:
+            return {"error": True, "errorMessage": "'Nom du type' est obligatoire"}
 
         if not self.addItemWindow.textPrix.text():
             self.addItemWindow.textPrix.setText("0")
@@ -597,6 +601,9 @@ class AddItemsUI(QtWidgets.QMainWindow):
         # Radio button check
         if self.addItemWindow.radioMultiple.isChecked() == False and self.addItemWindow.radioUnique.isChecked() == False:
             return {"error": True, "errorMessage": "Veuillez choisir un 'Type Stock'"}
+        
+        if self.addItemWindow.radioUnique.isChecked() == True and int(self.addItemWindow.textStock.text()) > 1:
+            return {"error": True, "errorMessage": "Le stock doit être 1 ou 0"}
 
         return self.item.checkitemNumber(self.addItemWindow.textCodeArticle.text())
 
