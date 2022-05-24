@@ -49,6 +49,7 @@ class Stock():
 
 class Item(Stock):
     def __init__(self, id=None):
+        self.id = None
         if id != None:
             self.item = self.getItemById(id)
             self.id = id
@@ -182,8 +183,8 @@ class Item(Stock):
             return{"error" : True, "errorMessage" : "Le code article entré n'est pas unique"}
     # If this function returns True, it means the item is unique
     # Otherwise if it returns False, it means the item is multiple
-    def checkIfItemIsUnique(self):
-        query = f"SELECT sploks.geartypes.uniqueitem from sploks.geartypes WHERE sploks.geartypes.id = {self.type}"
+    def checkIfItemIsUnique(self, type):
+        query = f"SELECT sploks.geartypes.uniqueitem from sploks.geartypes WHERE sploks.geartypes.id = {type}"
         connection = connectToDatabase(self)
         res = executeQuery(self, connection, query)
         
@@ -191,3 +192,10 @@ class Item(Stock):
             return True
         else:
             return False
+
+    def createType(self, name, isUnique):
+        query = f"INSERT INTO sploks.geartypes (sploks.geartypes.name, sploks.geartypes.uniqueitem) VALUES ('{name}', {isUnique})"
+        connection = connectToDatabase(self)
+        res = executeQuery(self, connection, query)
+
+        return res
