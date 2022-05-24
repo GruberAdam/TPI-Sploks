@@ -4,10 +4,11 @@
 
 from PyQt5 import QtWidgets, QtGui, uic
 from controller import customersController, stockController, staffController, contractsController
+import sys
 
 # Displays the main menu
 def displayMainMenu(self):
-    mainMenuWindow = uic.loadUi("view/menuView.ui", self)
+    mainMenuWindow = uic.loadUi(sys.path[0] + "\\view\\menuView.ui", self)
 
     # Click event listener 
     mainMenuWindow.btnClients.clicked.connect(displayClients)

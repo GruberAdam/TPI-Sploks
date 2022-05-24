@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets, QtGui, uic, QtCore
-
 from model.customersModel import *
+import sys
 
 needUpdate = False
 
@@ -8,7 +8,7 @@ needUpdate = False
 class CustomersUi(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        self.customersWindow = uic.loadUi("view/customersView.ui", self)
+        self.customersWindow = uic.loadUi(sys.path[0] + "\\view\\customersView.ui", self)
         self.loadCustomers()
         self.customersWindow.show()
 
@@ -68,7 +68,7 @@ class CustomerDetailsUi(QtWidgets.QMainWindow):
     
     def __init__(self):
         super().__init__()
-        self.customerDetailWindow = uic.loadUi("view/customerDetailsView.ui", self)
+        self.customerDetailWindow = uic.loadUi(sys.path[0] + "\\view\\customerDetailsView.ui", self)
         self.edit = False
         
     #Sets up the UI 

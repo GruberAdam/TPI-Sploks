@@ -3,8 +3,8 @@
 # Version : 1.0
 
 import sys
-import os
-sys.path.append(os.getcwd() + "\\packages") # Importing packages file
+
+sys.path.append(sys.path[0] + "\\packages") # Importing packages file
 from PyQt5 import QtWidgets
 
 from controller import mainMenuController, keyPressController

@@ -1,10 +1,12 @@
 from PyQt5 import QtWidgets, QtGui, uic
 from model.Contracts import *
+import sys
+
 
 class ContractsUi(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        self.contractsWindow = uic.loadUi("view/contractsView.ui", self)
+        self.contractsWindow = uic.loadUi(sys.path[0] + "\\view\\contractsView.ui", self)
         
     # Sets up the UI
     def setupUi(self, id, code):

@@ -3,6 +3,7 @@ from PyQt5.QtCore import Qt
 from controller import contractsController
 from model.Stock import *
 from PyQt5.QtWidgets import QComboBox
+import sys
 
 windowNeedsUpdate = False
 creatingItem = False
@@ -12,7 +13,7 @@ class StockUi(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         self.stock = Stock()
-        self.stockWindow = uic.loadUi("view/stockView.ui", self)
+        self.stockWindow = uic.loadUi(sys.path[0] + "\\view\\stockView.ui", self)
         self.selectedId = None
         self.selectedRow = None
         self.changedStockContent = False
@@ -198,7 +199,7 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         self.editable = False
-        self.itemDetailWindow = uic.loadUi("view/itemDetailsView.ui", self)
+        self.itemDetailWindow = uic.loadUi(sys.path[0] + "\\view\\itemDetailsView.ui", self)
 
     def closeEvent(self,event):
         global windowNeedsUpdate
@@ -387,7 +388,7 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
 class AddItemsUI(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        self.addItemWindow = uic.loadUi("view/addItemsView.ui", self)
+        self.addItemWindow = uic.loadUi(sys.path[0] + "\\view\\addItemsView.ui", self)
         self.setupUi()
         self.addItemWindow.show()
     
