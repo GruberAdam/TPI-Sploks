@@ -1,5 +1,4 @@
 from PyQt5 import QtWidgets, QtGui, uic, QtCore
-from PyQt5.QtCore import Qt
 from controller import contractsController
 from model.Stock import *
 from PyQt5.QtWidgets import QComboBox, QMessageBox
@@ -30,10 +29,13 @@ class StockUi(QtWidgets.QMainWindow):
 
         self.stockWindow.textBrand.setFocus()
 
+
         try:
+            #Loads hole stock
             self.loadItems(self.stock.getStock())
             self.stockWindow.show()
         except Exception as error:
+            # Writes an error
             msg = QMessageBox()
             msg.setWindowTitle("Error")
             msg.setText(str(error))
@@ -42,6 +44,7 @@ class StockUi(QtWidgets.QMainWindow):
 
 
     # Writes all the data in the table
+    # Stock arg is given and table is filled thank to the arg
     def loadItems(self, stock):
         self.stockWindow.tableStock.setRowCount(0)
         self.setTableHeader()
@@ -74,7 +77,10 @@ class StockUi(QtWidgets.QMainWindow):
                 index, 10, QtWidgets.QTableWidgetItem(str(item[8])))  # Stock
 
         self.stockWindow.tableStock.viewport().installEventFilter(self)  # Event listener
-    
+
+    # Updates just one row
+    # row param gives the row that needs to be updated
+    # item param gives the new item
     def updateItems(self, row, item):
         # Inserting the data into the table.
         self.stockWindow.tableStock.setItem(
@@ -109,7 +115,6 @@ class StockUi(QtWidgets.QMainWindow):
                 index, QtWidgets.QTableWidgetItem(str(header)))
 
     # It filters the stock table based on the user input.
-
     def filterButton(self):
         self.fillSelectedRowColor(True)
         try:
@@ -124,26 +129,31 @@ class StockUi(QtWidgets.QMainWindow):
             self.stockWindow.tableStock.verticalScrollBar().setValue(0)  # Goes back to the top of the filter
             self.changedStockContent = True
         except Exception as error:
+            # Writes an error
             msg = QMessageBox()
             msg.setWindowTitle("Error")
             msg.setText(str(error))
             msg.setIcon(QMessageBox.Critical)
             msg.exec_()
 
+    # When user pressed on the add button, opens the addItem window
     def addButton(self):
         try:
             self.addItemsUi = AddItemsUI()
         except Exception as error:
+            # Writes an error
             msg = QMessageBox()
             msg.setWindowTitle("Error")
             msg.setText(str(error))
             msg.setIcon(QMessageBox.Critical)
             msg.exec_()
         
+    # When the comboBox index changes, it will directely filter the stock
     def comboBoxEvent(self):
         self.filterButton()
 
     # Fills the row of a color from the row given
+    # If earse = True, it will earse the current selected row
     def fillSelectedRowColor(self, earse = False):
         if self.selectedId == None:
             return
@@ -157,18 +167,20 @@ class StockUi(QtWidgets.QMainWindow):
                 self.stockWindow.tableStock.item(self.selectedRow, i).setBackground(QtGui.QColor(51,120,210))
         self.changedStockContent = False
         return
-
+    
+    # Whenever a cell is clicked, it will earse the old selected row 
     def singleClickCell(self):
         if self.changedStockContent == False:
             self.fillSelectedRowColor(True)
     
-    # If the user double clicks on a cell in the table, get the row and the id of the item, then open the
-    # second window and pass the id to it.
+    """
+    Checks if user doubled clicked on a cell (opens the detailled view)
+    Check if user pressed return on a filter field
+    Checks if the variable windowNeedsUpdate is = to true
 
-    #:param source: The object that the event is coming from
-    #:param event: The event that was triggered
-    #:return: The return value is a boolean value. If the event is handled, the function should return
-    # True. If the event should be propagated further, the function should return False.
+    :param object: The object that the event is being sent to
+    :param event: QEvent
+    """
     def eventFilter(self, object, event):
         global windowNeedsUpdate
         global creatingItem
@@ -209,9 +221,14 @@ class StockUi(QtWidgets.QMainWindow):
             windowNeedsUpdate = False
             creatingItem = False
         return False
-    
+    """
+        Checks if escape is pressed, if it is, it sets the focus on the textBrand. 
+        Checks if escaped is pressed on different item to activate their normal behavior
+        
+        :param event: The event that was sent to the widget
+        :return: The return value of the event handler.
+    """
     def event(self,event):
-
         if event.type() == QtCore.QEvent.KeyPress:
             if QtCore.Qt.Key_Escape == event.key():
                 self.stockWindow.textBrand.setFocus(True)
@@ -249,13 +266,13 @@ class StockUi(QtWidgets.QMainWindow):
         return super().event(event)
 
 
-# Loads the ui file and creates a window.
 class ItemDetailsUi(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         self.editable = False
         self.itemDetailWindow = uic.loadUi(sys.path[0] + "\\view\\itemDetailsView.ui", self)
 
+    # When windows closes, sets the global variable windowNeedsUpdate to true
     def closeEvent(self,event):
         global windowNeedsUpdate
         windowNeedsUpdate = True
@@ -286,7 +303,7 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
         self.itemDetailWindow.textTaille.setText(str(self.item.size))
         self.itemDetailWindow.lblnbContracts.setText(str(numberOfContracts))
 
-
+        
         isUnique = self.item.checkIfItemIsUnique(self.item.type)
         self.item.setItem({"unique" : isUnique})
 
@@ -320,9 +337,10 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
         self.setAllFieldsToEditable(False)
 
         self.itemDetailWindow.show()
-
+    
+    # Sets up the tab order 
     def setupTabOrder(self):
-        # Setting the tab order
+
         tabOrder = [ self.itemDetailWindow.textMarque, self.itemDetailWindow.textModel, 
         self.comboBoxType, self.itemDetailWindow.comboBoxEtat, self.itemDetailWindow.textTaille, self.itemDetailWindow.textPrixAchat,
         self.itemDetailWindow.textRevenusGeneres, self.itemDetailWindow.textStock, self.itemDetailWindow.btnContracts, self.itemDetailWindow.btnEdit,
@@ -345,7 +363,8 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
         contracts = contractsController.ContractsUi()
         contracts.setupUi(self.item.id, self.item.itemNb)
     
-    # When edit button is clicked :
+    # When edit button is clicked
+    # Enables or disables fields 
     def editButton(self):
         if self.editable == False:
             self.editable = True
@@ -359,7 +378,7 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
             self.itemDetailWindow.textErrorMessage.setStyleSheet("color: red; border:none;")
             self.itemDetailWindow.textErrorMessage.setText("Les champs ne sont plus éditable")
 
-    # Changes all fields,
+    # switches all fields availbility,
     # if bool is True, all fields are editables
     # if bool is False, all fields are not editabled
     def setAllFieldsToEditable(self, bool):
@@ -372,6 +391,7 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
         self.itemDetailWindow.textStock.setReadOnly(not bool)
         self.comboBoxType.setEnabled(bool)
 
+    # Checks if the fields completed are valid or not
     def checkFields(self):
         #Empty checks
         if not self.itemDetailWindow.textMarque.text():
@@ -394,6 +414,7 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
 
         return {"error" : False}
 
+    # When user validates the item
     def validateButton(self):
         global windowNeedsUpdate
         res = self.checkFields()
@@ -409,12 +430,14 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
             self.itemDetailWindow.close()
             windowNeedsUpdate = True
 
-    #Displays in a label the error given
+    # Displays in a label the error given
+    # Error is a string that is going to be displayed
     def displayErrorMessage(self, error):
         self.itemDetailWindow.textErrorMessage.setStyleSheet(
             "color: red; border:none;")
         self.itemDetailWindow.textErrorMessage.setText(error)
 
+    # When the type changed, checks if it is unique or not
     def typeIndexChanged(self):
         index = self.comboBoxType.currentIndex()
         self.item.setItem({"type" : index + 1})
@@ -425,6 +448,12 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
         else:
             self.itemDetailWindow.lblTypeStock.setText("Stock (multiple)")
 
+
+    """
+    Checks if the widget got pressed enter with focus, if yes it does its normal behavior
+    
+    :param event: The event that occurred
+    """
     def event(self, event):
         if event.type() == QtCore.QEvent.KeyPress:
             if event.key() in (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter):
@@ -439,18 +468,20 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
                 if self.comboBoxType.hasFocus():
                     self.comboBoxType.showPopup()
                 self.focusNextPrevChild(True) # Goes to next widget
-                self.window().setAttribute(Qt.WA_KeyboardFocusChange) # Styles the border painting
+                self.window().setAttribute(QtCore.Qt.WA_KeyboardFocusChange) # Styles the border painting
 
         return super().event(event)
 
 
 class AddItemsUI(QtWidgets.QMainWindow):
+    
     def __init__(self):
         super().__init__()
         self.addItemWindow = uic.loadUi(sys.path[0] + "\\view\\addItemsView.ui", self)
         self.setupUi()
         self.addItemWindow.show()
-    
+
+    # When window closes, simulate the fact that he clicked on validate
     def closeEvent(self, event):
         self.buttonValidate()
 
@@ -513,6 +544,7 @@ class AddItemsUI(QtWidgets.QMainWindow):
 
         self.comboBoxType.show()
     
+    # When the type changed, check if "Nouveau" got choosen
     def comboBoxTypeChanged(self):
         if self.comboBoxType.currentIndex() == 1:
             # Name field visible 
@@ -602,7 +634,6 @@ class AddItemsUI(QtWidgets.QMainWindow):
 
     # When the button "Encore" is clicked
     # Creates a new item with the fields inputed
-
     def buttonAdd(self):
         global windowNeedsUpdate
         global creatingItem
@@ -670,10 +701,9 @@ class AddItemsUI(QtWidgets.QMainWindow):
         return self.item.checkitemNumber(self.addItemWindow.textCodeArticle.text())
 
 
-    # Every kind of events come in this function
+    # Checks if the widget got pressed enter with focus, if yes it does its normal behavior
 
     #:param event: The event that occurred
-    #:return: The event is being returned.
     def event(self, event):
         if event.type() == QtCore.QEvent.KeyPress:
             if event.key() in (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter):
@@ -703,5 +733,5 @@ class AddItemsUI(QtWidgets.QMainWindow):
                     self.addItemWindow.comboBoxEtat.showPopup()
 
                 self.focusNextPrevChild(True) # Goes to next widget
-                self.window().setAttribute(Qt.WA_KeyboardFocusChange) # Styles the border painting
+                self.window().setAttribute(QtCore.Qt.WA_KeyboardFocusChange) # Styles the border painting
         return super().event(event)
