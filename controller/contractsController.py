@@ -29,5 +29,6 @@ class ContractsUi(QtWidgets.QMainWindow):
             self.contractsWindow.tableContracts.setItem(index, 5, QtWidgets.QTableWidgetItem(str(contract[0][3])))
             self.contractsWindow.tableContracts.setItem(index, 6, QtWidgets.QTableWidgetItem(str(contract[0][2])))
             self.contractsWindow.tableContracts.setItem(index, 7, QtWidgets.QTableWidgetItem(str(contract[0][10])))
+            self.contractsWindow.tableContracts.setItem(index, 8, QtWidgets.QTableWidgetItem(str(contract[0][6])))
 
         self.contractsWindow.show()

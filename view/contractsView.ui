@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>850</width>
+    <width>1213</width>
     <height>550</height>
    </rect>
   </property>
@@ -19,7 +19,7 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>831</width>
+      <width>1191</width>
       <height>530</height>
      </rect>
     </property>
@@ -74,6 +74,11 @@
     <column>
      <property name="text">
       <string>Aller Chercher</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Total</string>
      </property>
     </column>
    </widget>
