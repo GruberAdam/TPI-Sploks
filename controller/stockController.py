@@ -188,14 +188,9 @@ class StockUi(QtWidgets.QMainWindow):
         # Checks that it's a keypress and from a QTextEdit event
         if event.type() == QtCore.QEvent.KeyPress and object.hasSelectedText() == QtWidgets.QLineEdit(self).hasSelectedText():
             if event.key() == QtCore.Qt.Key_Return:
-                try:
-                    self.filterButton()
-                except Exception as error:
-                    msg = QMessageBox()
-                    msg.setWindowTitle("Error")
-                    msg.setText(str(error))
-                    msg.setIcon(QMessageBox.Critical)
-                    msg.exec_()
+
+                self.filterButton()
+
         # Updates the window when the variable windowNeedsUpdate is True
         if windowNeedsUpdate == True:
             try:
@@ -216,34 +211,29 @@ class StockUi(QtWidgets.QMainWindow):
         return False
     
     def event(self,event):
-        try:
-            if event.type() == QtCore.QEvent.KeyPress:
-                if event.key() == QtCore.Qt.Key_Return:
-                    if self.stockWindow.tableStock.selectedIndexes():
-                        self.fillSelectedRowColor(True)
-                        # Opens Detailed UI
-                        self.selectedRow = self.stockWindow.tableStock.currentRow()  # gets row clicked
-                        self.selectedId = self.stockWindow.tableStock.item(self.selectedRow, 0).text()  # gets id based on click
+        if event.type() == QtCore.QEvent.KeyPress:
+            if event.key() == QtCore.Qt.Key_Return:
+                if self.stockWindow.tableStock.selectedIndexes():
+                    self.fillSelectedRowColor(True)
+                    # Opens Detailed UI
+                    self.selectedRow = self.stockWindow.tableStock.currentRow()  # gets row clicked
+                    self.selectedId = self.stockWindow.tableStock.item(self.selectedRow, 0).text()  # gets id based on click
+                    try:
+                        self.detailledUi = ItemDetailsUi()  # Prepare the second window
+                        self.detailledUi.setupUi(self.selectedId)
+                    except Exception as error:
+                        msg = QMessageBox()
+                        msg.setWindowTitle("Error")
+                        msg.setText(str(error))
+                        msg.setIcon(QMessageBox.Critical)
+                        msg.exec_()
 
-                        try:
-                            self.detailledUi = ItemDetailsUi()  # Prepare the second window
-                            self.detailledUi.setupUi(self.selectedId)
-                        except Exception as error:
-                            msg = QMessageBox()
-                            msg.setWindowTitle("Error")
-                            msg.setText(str(error))
-                            msg.setIcon(QMessageBox.Critical)
-                            msg.exec_()
+                # Shows "Type" content if it has focus and enter key is pressed
+                if self.stockWindow.comboBoxEtat.hasFocus():
+                    self.stockWindow.comboBoxEtat.showPopup()
 
-                    # Shows "Type" content if it has focus and enter key is pressed
-                    if self.stockWindow.comboBoxEtat.hasFocus():
-                        self.stockWindow.comboBoxEtat.showPopup()
-        except Exception as error:
-            msg = QMessageBox()
-            msg.setWindowTitle("Error")
-            msg.setText(str(error))
-            msg.setIcon(QMessageBox.Critical)
-            msg.exec_()
+                if self.stockWindow.btnAdd.hasFocus():
+                    self.addButton()
         return super().event(event)
 
 
@@ -473,7 +463,7 @@ class AddItemsUI(QtWidgets.QMainWindow):
 
         # Setting the tab order
         tabOrder = [self.addItemWindow.textCodeArticle, self.addItemWindow.textMarque, self.addItemWindow.textModel, 
-        self.comboBoxType, self.addItemWindow.textTaille, self.addItemWindow.comboBoxEtat, self.addItemWindow.textPrix,
+        self.comboBoxType, self.addItemWindow.textTypeChoix, self.addItemWindow.textTaille, self.addItemWindow.comboBoxEtat, self.addItemWindow.textPrix,
         self.addItemWindow.radioUnique, self.addItemWindow.radioMultiple, self.addItemWindow.textStock,
         self.addItemWindow.btnEncore, self.addItemWindow.btnValider]
 
@@ -488,6 +478,7 @@ class AddItemsUI(QtWidgets.QMainWindow):
         self.setTabOrder(tabOrder[8], tabOrder[9])
         self.setTabOrder(tabOrder[9], tabOrder[10])
         self.setTabOrder(tabOrder[10], tabOrder[11])
+        self.setTabOrder(tabOrder[11], tabOrder[12])
 
     # Sets up the comboBox
     def setupComboBox(self):
@@ -510,6 +501,7 @@ class AddItemsUI(QtWidgets.QMainWindow):
         if self.comboBoxType.currentIndex() == 1:
             # Name field visible 
             self.addItemWindow.textTypeChoix.setVisible(True)
+            self.addItemWindow.textTypeChoix.setFocus(True)
             # Enables radioBoxes
             self.addItemWindow.radioUnique.setEnabled(True)
             self.addItemWindow.radioMultiple.setEnabled(True)
@@ -673,12 +665,10 @@ class AddItemsUI(QtWidgets.QMainWindow):
                 # Checks radioBox "Unique" if it hasFocus and enter key is pressed
                 if self.addItemWindow.radioUnique.hasFocus(): 
                     self.addItemWindow.radioUnique.setChecked(True)
-                    self.radioButtonChecked()
 
                 # Checks radioBox "Multiple" if it hasFocus and enter key is pressed
                 if self.addItemWindow.radioMultiple.hasFocus():
                     self.addItemWindow.radioMultiple.setChecked(True)
-                    self.radioButtonChecked()
 
                 # Clicks on the "Encore" Button if it has focus and enter key is pressed
                 if self.addItemWindow.btnEncore.hasFocus():
