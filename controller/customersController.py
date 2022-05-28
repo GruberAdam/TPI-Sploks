@@ -9,8 +9,16 @@ class CustomersUi(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         self.customersWindow = uic.loadUi(sys.path[0] + "\\view\\customersView.ui", self)
-        self.loadCustomers()
-        self.customersWindow.show()
+
+        try:
+            self.loadCustomers()
+            self.customersWindow.show()
+        except Exception as error:
+            msg = QtWidgets.QMessageBox()
+            msg.setWindowTitle("Error")
+            msg.setText(str(error))
+            msg.setIcon(QtWidgets.QMessageBox.Critical)
+            msg.exec_() 
 
     # Method designed to load the customers from the database and fills the table with them.        
     def loadCustomers(self):

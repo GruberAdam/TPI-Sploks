@@ -2,8 +2,9 @@ from PyQt5 import QtWidgets, QtGui, uic, QtCore
 from PyQt5.QtCore import Qt
 from controller import contractsController
 from model.Stock import *
-from PyQt5.QtWidgets import QComboBox
+from PyQt5.QtWidgets import QComboBox, QMessageBox
 import sys
+
 
 windowNeedsUpdate = False
 creatingItem = False
@@ -29,9 +30,15 @@ class StockUi(QtWidgets.QMainWindow):
 
         self.stockWindow.textBrand.setFocus()
 
-        self.loadItems(self.stock.getStock())
-
-        self.stockWindow.show()
+        try:
+            self.loadItems(self.stock.getStock())
+            self.stockWindow.show()
+        except Exception as error:
+            msg = QMessageBox()
+            msg.setWindowTitle("Error")
+            msg.setText(str(error))
+            msg.setIcon(QMessageBox.Critical)
+            msg.exec_() 
 
 
     # Writes all the data in the table
@@ -104,19 +111,33 @@ class StockUi(QtWidgets.QMainWindow):
     # It filters the stock table based on the user input.
 
     def filterButton(self):
-        filter = {"code": Item.getStateIdFromDescription(self, self.stockWindow.comboBoxEtat.currentText()),
-                  "brand": self.stockWindow.textBrand.text().strip(),
-                  "model": self.stockWindow.textModel.text().strip(),
-                  "articlenumber": self.stockWindow.textSerialNumber.text().strip()}
-        self.filteredStock = self.stock.getStockByFilter(filter)
+        try:
+            filter = {"code": Item.getStateIdFromDescription(self, self.stockWindow.comboBoxEtat.currentText()),
+                    "brand": self.stockWindow.textBrand.text().strip(),
+                    "model": self.stockWindow.textModel.text().strip(),
+                    "articlenumber": self.stockWindow.textSerialNumber.text().strip()}
+            self.filteredStock = self.stock.getStockByFilter(filter)
 
-        self.loadItems(self.filteredStock)  # Loads table with filter
+            self.loadItems(self.filteredStock)  # Loads table with filter
 
-        self.stockWindow.tableStock.verticalScrollBar().setValue(0)  # Goes back to the top of the filter
-        self.changedStockContent = True
+            self.stockWindow.tableStock.verticalScrollBar().setValue(0)  # Goes back to the top of the filter
+            self.changedStockContent = True
+        except Exception as error:
+            msg = QMessageBox()
+            msg.setWindowTitle("Error")
+            msg.setText(str(error))
+            msg.setIcon(QMessageBox.Critical)
+            msg.exec_()
 
     def addButton(self):
-        self.addItemsUi = AddItemsUI()
+        try:
+            self.addItemsUi = AddItemsUI()
+        except Exception as error:
+            msg = QMessageBox()
+            msg.setWindowTitle("Error")
+            msg.setText(str(error))
+            msg.setIcon(QMessageBox.Critical)
+            msg.exec_()
         
     def comboBoxEvent(self):
         self.filterButton()
@@ -155,42 +176,74 @@ class StockUi(QtWidgets.QMainWindow):
                 self.selectedRow = self.stockWindow.tableStock.currentRow()  # gets row clicked
                 self.selectedId = self.stockWindow.tableStock.item(self.selectedRow, 0).text()  # gets id based on click
                 self.fillSelectedRowColor()
-                self.detailledUi = ItemDetailsUi()  # Prepare the second window
-                self.detailledUi.setupUi(self.selectedId)
-
+                try:
+                    self.detailledUi = ItemDetailsUi()  # Prepare the second window
+                    self.detailledUi.setupUi(self.selectedId)
+                except Exception as error:
+                    msg = QMessageBox()
+                    msg.setWindowTitle("Error")
+                    msg.setText(str(error))
+                    msg.setIcon(QMessageBox.Critical)
+                    msg.exec_()
         # Checks that it's a keypress and from a QTextEdit event
         if event.type() == QtCore.QEvent.KeyPress and object.hasSelectedText() == QtWidgets.QLineEdit(self).hasSelectedText():
             if event.key() == QtCore.Qt.Key_Return:
-                self.filterButton()
-
+                try:
+                    self.filterButton()
+                except Exception as error:
+                    msg = QMessageBox()
+                    msg.setWindowTitle("Error")
+                    msg.setText(str(error))
+                    msg.setIcon(QMessageBox.Critical)
+                    msg.exec_()
         # Updates the window when the variable windowNeedsUpdate is True
         if windowNeedsUpdate == True:
-            if creatingItem == True:
-                self.loadItems(self.stock.getStock())
-            else:
-                self.itemToUpdate = Item(self.selectedId)
-                self.updateItems(self.selectedRow, self.itemToUpdate)
-                self.fillSelectedRowColor()
+            try:
+                if creatingItem == True:
+                        self.loadItems(self.stock.getStock())            
+                else:
+                    self.itemToUpdate = Item(self.selectedId)
+                    self.updateItems(self.selectedRow, self.itemToUpdate)
+                    self.fillSelectedRowColor()
+            except Exception as error:
+                    msg = QMessageBox()
+                    msg.setWindowTitle("Error")
+                    msg.setText(str(error))
+                    msg.setIcon(QMessageBox.Critical)
+                    msg.exec_()
             windowNeedsUpdate = False
             creatingItem = False
-            
         return False
     
     def event(self,event):
-        if event.type() == QtCore.QEvent.KeyPress:
-            if event.key() == QtCore.Qt.Key_Return:
-                if self.stockWindow.tableStock.selectedIndexes():
-                    self.fillSelectedRowColor(True)
-                    # Opens Detailed UI
-                    self.selectedRow = self.stockWindow.tableStock.currentRow()  # gets row clicked
-                    self.selectedId = self.stockWindow.tableStock.item(self.selectedRow, 0).text()  # gets id based on click
+        try:
+            if event.type() == QtCore.QEvent.KeyPress:
+                if event.key() == QtCore.Qt.Key_Return:
+                    if self.stockWindow.tableStock.selectedIndexes():
+                        self.fillSelectedRowColor(True)
+                        # Opens Detailed UI
+                        self.selectedRow = self.stockWindow.tableStock.currentRow()  # gets row clicked
+                        self.selectedId = self.stockWindow.tableStock.item(self.selectedRow, 0).text()  # gets id based on click
 
-                    self.detailledUi = ItemDetailsUi()  # Prepare the second window
-                    self.detailledUi.setupUi(self.selectedId)
+                        try:
+                            self.detailledUi = ItemDetailsUi()  # Prepare the second window
+                            self.detailledUi.setupUi(self.selectedId)
+                        except Exception as error:
+                            msg = QMessageBox()
+                            msg.setWindowTitle("Error")
+                            msg.setText(str(error))
+                            msg.setIcon(QMessageBox.Critical)
+                            msg.exec_()
 
-                # Shows "Type" content if it has focus and enter key is pressed
-                if self.stockWindow.comboBoxEtat.hasFocus():
-                    self.stockWindow.comboBoxEtat.showPopup()
+                    # Shows "Type" content if it has focus and enter key is pressed
+                    if self.stockWindow.comboBoxEtat.hasFocus():
+                        self.stockWindow.comboBoxEtat.showPopup()
+        except Exception as error:
+            msg = QMessageBox()
+            msg.setWindowTitle("Error")
+            msg.setText(str(error))
+            msg.setIcon(QMessageBox.Critical)
+            msg.exec_()
         return super().event(event)
 
 
