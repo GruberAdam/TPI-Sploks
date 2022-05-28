@@ -434,6 +434,10 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
                     self.validateButton()
                 if self.itemDetailWindow.btnContracts.hasFocus():
                     self.contractsButton()
+                if self.itemDetailWindow.comboBoxEtat.hasFocus():
+                    self.itemDetailWindow.comboBoxEtat.showPopup()
+                if self.comboBoxType.hasFocus():
+                    self.comboBoxType.showPopup()
                 self.focusNextPrevChild(True) # Goes to next widget
                 self.window().setAttribute(Qt.WA_KeyboardFocusChange) # Styles the border painting
 
