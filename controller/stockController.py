@@ -111,6 +111,7 @@ class StockUi(QtWidgets.QMainWindow):
     # It filters the stock table based on the user input.
 
     def filterButton(self):
+        self.fillSelectedRowColor(True)
         try:
             filter = {"code": Item.getStateIdFromDescription(self, self.stockWindow.comboBoxEtat.currentText()),
                     "brand": self.stockWindow.textBrand.text().strip(),
@@ -151,9 +152,9 @@ class StockUi(QtWidgets.QMainWindow):
                 self.stockWindow.tableStock.item(self.selectedRow, i).setBackground(QtGui.QColor(255,255,255))
             self.changedStockContent = False
             return
-
-        for i in range(11):
-            self.stockWindow.tableStock.item(self.selectedRow, i).setBackground(QtGui.QColor(51,120,210))
+        if earse == False:
+            for i in range(11):
+                self.stockWindow.tableStock.item(self.selectedRow, i).setBackground(QtGui.QColor(51,120,210))
         self.changedStockContent = False
         return
 
@@ -188,14 +189,13 @@ class StockUi(QtWidgets.QMainWindow):
         # Checks that it's a keypress and from a QTextEdit event
         if event.type() == QtCore.QEvent.KeyPress and object.hasSelectedText() == QtWidgets.QLineEdit(self).hasSelectedText():
             if event.key() == QtCore.Qt.Key_Return:
-
                 self.filterButton()
 
         # Updates the window when the variable windowNeedsUpdate is True
         if windowNeedsUpdate == True:
             try:
                 if creatingItem == True:
-                        self.loadItems(self.stock.getStock())            
+                    self.loadItems(self.stock.getStock())            
                 else:
                     self.itemToUpdate = Item(self.selectedId)
                     self.updateItems(self.selectedRow, self.itemToUpdate)
@@ -211,29 +211,41 @@ class StockUi(QtWidgets.QMainWindow):
         return False
     
     def event(self,event):
+
         if event.type() == QtCore.QEvent.KeyPress:
+            if QtCore.Qt.Key_Escape == event.key():
+                self.stockWindow.textBrand.setFocus(True)
+                super().event(event)
             if event.key() == QtCore.Qt.Key_Return:
+                # Shows "Type" content if it has focus and enter key is pressed
+                if self.stockWindow.comboBoxEtat.hasFocus():
+                    self.stockWindow.comboBoxEtat.showPopup()
+                    return super().event(event)
+                # Filters the article if the button has focus and enter key is pressed
+                if self.stockWindow.btnFiltrer.hasFocus():
+                    self.filterButton()
+                    return super().event(event)
+                # Goes into the add article window if it has focus and enter key is pressed
+                if self.stockWindow.btnAdd.hasFocus():
+                    self.addButton()
+                    return super().event(event)
+
                 if self.stockWindow.tableStock.selectedIndexes():
                     self.fillSelectedRowColor(True)
                     # Opens Detailed UI
                     self.selectedRow = self.stockWindow.tableStock.currentRow()  # gets row clicked
                     self.selectedId = self.stockWindow.tableStock.item(self.selectedRow, 0).text()  # gets id based on click
+                    self.fillSelectedRowColor()
                     try:
                         self.detailledUi = ItemDetailsUi()  # Prepare the second window
                         self.detailledUi.setupUi(self.selectedId)
+                        super().event(event)
                     except Exception as error:
                         msg = QMessageBox()
                         msg.setWindowTitle("Error")
                         msg.setText(str(error))
                         msg.setIcon(QMessageBox.Critical)
                         msg.exec_()
-
-                # Shows "Type" content if it has focus and enter key is pressed
-                if self.stockWindow.comboBoxEtat.hasFocus():
-                    self.stockWindow.comboBoxEtat.showPopup()
-
-                if self.stockWindow.btnAdd.hasFocus():
-                    self.addButton()
         return super().event(event)
 
 
