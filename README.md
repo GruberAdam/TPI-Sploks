@@ -3,28 +3,28 @@
 ## Comment faire fonctionner sploks  ?
 
 ## Table des matières
-1. [Télécharger les fichiers nécessaires en local]()
-2. [Installer la base de données]()
-3. [Lancer l'application]()
-4. [Manuel d'utilisation]()
+1. [Télécharger les fichiers nécessaires en local](#1)
+2. [Installer la base de données](#2)
+3. [Lancer l'application](#3)
+4. [Manuel d'utilisation](#4)
 
 
-## Installer le répository en local : 
+## Télécharger les fichiers nécessaires en local : <a name="1"></a>
 Pour faire ça, vous avez seulement besoin de télécharger les 2 fichiers à la racine du projet.
 Sploks.exe qui va être l'exécutable, et script.sql qui va contenir toutes les données de la base de données
 
-## Installer la base de données
+## Installer la base de données <a name="2"></a>
 En ce qui concerne la base de données, je vous invite à installer MySQl workbench, et le service qui va avec,
 pour pouvoir exéctuer le script que vous avez téléchargé.
 
 Dans mysql il faudra créer un compte qui s'appelle "root" et qui a comme mot de passe "root.1234".
 Bien évidemment, ce compte aura besoin d'avoir les droits de modification sur la base de donnée.
 
-## Lancer l'application
+## Lancer l'application <a name="3"></a>
 Une fois tout cela effectué, il faut lancer le fichier qui s'appelle "Sploks.exe" téléchargé précédemment.
 Si toutes les étapes ont bien été effectuées auparavant, vous devriez avoir un menu qui s'ouvre.
 
-## Manuel d'utilisation
+## Manuel d'utilisation <a name="4"></a>
 Maintenant que vous êtes sur l'application, dans le menu principal, seul le bouton "Inventaire" fonctionnera.
 Si il n'y a pas d'erreur avec la base de données, une grande liste qui contient tout le stock doit s'ouvrir.
 
