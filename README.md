@@ -34,7 +34,7 @@ De là, vous avez 3 possibilités,
 2. Ajouter des articles
 3. Modifier des articles
 
-####Filtrer le stock
+#### Filtrer le stock
 Si vous souhaitez effectuer un filtre, les champs au-dessus des colonnes du stock sont à disposition pour cela.
 Veuillez entrer les données souhaitées pour un filtre puis cliquez sur le bouton situé sur la droite "Filtrer"
 pour lancer le filtre
