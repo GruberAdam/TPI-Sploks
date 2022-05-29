@@ -2,34 +2,65 @@
 # Date : 17.02.2022
 # Version : 1.0
 
-from PyQt5 import QtWidgets, QtGui, uic
-from controller import customersController, stockController, staffController, contractsController
-import sys
+from PyQt5 import QtWidgets, QtGui, uic, QtCore
+from controller import stockController
+import sys, os
 
-# Displays the main menu
-def displayMainMenu(self):
-    mainMenuWindow = uic.loadUi(sys.path[0] + "\\view\\menuView.ui", self)
+try:
+    # PyInstaller creates a temp folder and stores path in _MEIPASS
+    basePath = sys._MEIPASS
+except Exception:
+    basePath = os.path.abspath(".")
 
-    # Click event listener 
-    mainMenuWindow.btnClients.clicked.connect(displayClients)
-    mainMenuWindow.btnStock.clicked.connect(displayStock)
-    mainMenuWindow.btnStaff.clicked.connect(displayStaff)
-    mainMenuWindow.btnContracts.clicked.connect(displayContracts)
+class MainMenuUi(QtWidgets.QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setupUi()
 
-    mainMenuWindow.show()
+    def setupUi(self):
+        global basePath
+        self.mainMenuWindow = uic.loadUi(basePath + "\\view\\menuView.ui", self)
 
-# Redirects in the customers controller
-def displayClients(self):
-    customersController.CustomersUi()
+        # Click event listener 
+        self.mainMenuWindow.btnClients.clicked.connect(self.displayClients)
+        self.mainMenuWindow.btnStock.clicked.connect(self.displayStock)
+        self.mainMenuWindow.btnStaff.clicked.connect(self.displayStaff)
+        self.mainMenuWindow.btnContracts.clicked.connect(self.displayContracts)
 
-# Redirects in the stock controller
-def displayStock(self):
-    stockController.StockUi() 
+        self.mainMenuWindow.show()
 
-# Redirects in the staff controller
-def displayStaff(self):
-    staffController.StaffUi()
+    # Event listener when a key is pressed
+    def keyPressEvent(self, e):
+        if e.key() == QtCore.Qt.Key.Key_A: # When user presses the "a" key
+            self.displayClients()
+        if e.key() == QtCore.Qt.Key.Key_S: # When user presses the "s" key
+            self.displayStock()
+        if e.key() == QtCore.Qt.Key.Key_D: # When user presses the "d" key
+            self.displayStaff()
+        if e.key() == QtCore.Qt.Key.Key_F: # When user presses the "f" key
+            self.displayContracts()
 
-# Redirects in the contracts controller
-def displayContracts(self):
-    contractsController.ContractsUi()
+        
+    def displayClients(self):
+        msg = QtWidgets.QMessageBox()
+        msg.setWindowTitle("Indisponible")
+        msg.setText("La section client n'est pas disponible")
+        msg.exec_() 
+
+    # Redirects in the stock controller
+    def displayStock(self):
+        self.stockWindow = stockController.StockUi() 
+
+    # Redirects in the staff controller
+    def displayStaff(self):
+        msg = QtWidgets.QMessageBox()
+        msg.setWindowTitle("Indisponible")
+        msg.setText("La section staff n'est pas disponible")
+        msg.exec_() 
+
+    # Redirects in the contracts controller
+    def displayContracts(self):
+        msg = QtWidgets.QMessageBox()
+        msg.setWindowTitle("Indisponible")
+        msg.setText("La section contrats n'est pas disponible")
+        msg.exec_() 

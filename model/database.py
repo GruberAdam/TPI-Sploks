@@ -1,10 +1,18 @@
 from multiprocessing import connection
 import mysql.connector
 from mysql.connector import errorcode
-import os
+import os, sys
 from dotenv import load_dotenv
 
-load_dotenv() # Loads the .env file
+
+try:
+    # PyInstaller creates a temp folder and stores path in _MEIPASS
+    basePath = sys._MEIPASS
+except Exception:
+    basePath = os.path.abspath(".")
+
+print(os.path.join(basePath, '.env'))
+load_dotenv(dotenv_path=os.path.join(basePath, '.env')) # Loads the .env file
 
 # Function designed to create a connection to the database
 # The connection is then returned

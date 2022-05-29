@@ -8,12 +8,18 @@ import sys
 windowNeedsUpdate = False
 creatingItem = False
 
+try:
+    # PyInstaller creates a temp folder and stores path in _MEIPASS
+    basePath = sys._MEIPASS
+except Exception:
+    basePath = os.path.abspath(".")
+
 # It loads the stockView.ui file, and then loads the stock table.
 class StockUi(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         self.stock = Stock()
-        self.stockWindow = uic.loadUi(sys.path[0] + "\\view\\stockView.ui", self)
+        self.stockWindow = uic.loadUi(basePath + "\\view\\stockView.ui", self)
         self.selectedId = None
         self.selectedRow = None
         self.changedStockContent = False
@@ -268,9 +274,10 @@ class StockUi(QtWidgets.QMainWindow):
 
 class ItemDetailsUi(QtWidgets.QMainWindow):
     def __init__(self):
+        global basePath
         super().__init__()
         self.editable = False
-        self.itemDetailWindow = uic.loadUi(sys.path[0] + "\\view\\itemDetailsView.ui", self)
+        self.itemDetailWindow = uic.loadUi(basePath + "\\view\\itemDetailsView.ui", self)
 
     # When windows closes, sets the global variable windowNeedsUpdate to true
     def closeEvent(self,event):
@@ -476,8 +483,9 @@ class ItemDetailsUi(QtWidgets.QMainWindow):
 class AddItemsUI(QtWidgets.QMainWindow):
     
     def __init__(self):
+        global basePath
         super().__init__()
-        self.addItemWindow = uic.loadUi(sys.path[0] + "\\view\\addItemsView.ui", self)
+        self.addItemWindow = uic.loadUi(basePath + "\\view\\addItemsView.ui", self)
         self.setupUi()
         self.addItemWindow.show()
 
