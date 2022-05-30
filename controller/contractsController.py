@@ -2,11 +2,17 @@ from PyQt5 import QtWidgets, QtGui, uic
 from model.Contracts import *
 import sys
 
+try:
+    # PyInstaller creates a temp folder and stores path in _MEIPASS
+    basePath = sys._MEIPASS
+except Exception:
+    basePath = os.path.abspath(".")
 
 class ContractsUi(QtWidgets.QMainWindow):
     def __init__(self):
+        global basePath
         super().__init__()
-        self.contractsWindow = uic.loadUi(sys.path[0] + "\\view\\contractsView.ui", self)
+        self.contractsWindow = uic.loadUi(basePath + "\\view\\contractsView.ui", self)
         
     # Sets up the UI
     def setupUi(self, id, code):
